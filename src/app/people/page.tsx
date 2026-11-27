@@ -17,7 +17,7 @@ export default async function PeoplePage() {
     db.orm.User.all(),
     db.orm.Follow.where({ followerId: session.userId }).all(),
   ]);
-  const followedIds = new Set(follows.map((follow) => follow.followingId));
+  const followByUserId = new Map(follows.map((follow) => [follow.followingId, follow]));
   const people = users.filter((user) => user.id !== session.userId);
 
   return (
@@ -37,7 +37,7 @@ export default async function PeoplePage() {
                   <span className="block truncate text-sm text-zinc-500">@{person.username}</span>
                   {person.bio && <span className="mt-1 block line-clamp-1 text-xs text-zinc-500">{person.bio}</span>}</span>
                 </Link>
-                <div className="flex shrink-0 gap-2"><StartConversationButton userId={person.id} /><FollowButton userId={person.id} initialFollowing={followedIds.has(person.id)} /></div>
+                <div className="flex shrink-0 gap-2"><StartConversationButton userId={person.id} /><FollowButton userId={person.id} initialStatus={followByUserId.get(person.id)?.status === "accepted" ? "accepted" : followByUserId.get(person.id)?.status === "pending" ? "pending" : null} /></div>
               </article>
             ))}
           </div>

@@ -3,8 +3,17 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import UserAvatar from "@/components/UserAvatar";
+import VideoMedia from "@/components/VideoMedia";
 
-type Message = { id: string; senderId: string; body: string; createdAt: string | Date; readAt: string | Date | null; reactedByMe?: boolean };
+type SharedPost = {
+  id: string;
+  type: string;
+  content: string | null;
+  mediaUrl: string | null;
+  musicTitle: string | null;
+  author: { fullName: string; username: string };
+};
+type Message = { id: string; senderId: string; body: string; createdAt: string | Date; readAt: string | Date | null; reactedByMe?: boolean; sharedPost?: SharedPost | null };
 type ChatData = { messages: Message[]; error?: string };
 
 export default function ChatThread({ conversationId, userId, otherUser }: { conversationId: string; userId: string; otherUser: { fullName: string; username: string; avatarUrl: string | null } }) {
@@ -78,7 +87,22 @@ export default function ChatThread({ conversationId, userId, otherUser }: { conv
           {!mine && <UserAvatar src={otherUser.avatarUrl} name={otherUser.fullName} sizeClass="h-7 w-7" />}
           <div className={`flex max-w-[82%] flex-col ${mine ? "items-end" : "items-start"}`}>
             <article className={`rounded-2xl px-4 py-2.5 text-sm shadow-sm ${mine ? "rounded-br-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" : "rounded-bl-md border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"}`}>
-              <p className="whitespace-pre-wrap break-words">{message.body}</p>
+              {message.sharedPost ? (
+                <div className="w-full space-y-2">
+                  <Link href={message.sharedPost.type === "video" ? `/video/${encodeURIComponent(message.sharedPost.id)}` : `/#post-${encodeURIComponent(message.sharedPost.id)}`} className="block rounded-xl border border-zinc-200 p-2 transition hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-700 dark:hover:bg-zinc-700">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{message.sharedPost.type} · @{message.sharedPost.author.username}</p>
+                    {message.sharedPost.content && <p className="mt-1 whitespace-pre-wrap break-words text-sm">{message.sharedPost.content}</p>}
+                    {message.sharedPost.type === "image" && message.sharedPost.mediaUrl && <img src={message.sharedPost.mediaUrl} alt={message.sharedPost.content ?? "Shared post image"} className="mt-2 max-h-56 w-full rounded-lg object-cover" />}
+                    {message.sharedPost.musicTitle && <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">♪ {message.sharedPost.musicTitle}</p>}
+                    <p className="mt-2 text-xs font-medium text-blue-600 dark:text-blue-400">Open post →</p>
+                  </Link>
+                  {message.sharedPost.type === "video" && message.sharedPost.mediaUrl && <VideoMedia src={message.sharedPost.mediaUrl} title={message.sharedPost.content ?? `Video by ${message.sharedPost.author.fullName}`} className="max-h-56 w-full rounded-lg bg-black object-contain" />}
+                </div>
+              ) : message.body === "Shared a post" ? (
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">This shared post is no longer available.</p>
+              ) : (
+                <p className="whitespace-pre-wrap break-words">{message.body}</p>
+              )}
               <time dateTime={new Date(message.createdAt).toISOString()} className={`mt-1 block text-right text-[10px] ${mine ? "text-zinc-300 dark:text-zinc-500" : "text-zinc-500 dark:text-zinc-400"}`}>{new Date(message.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time>
             </article>
             <div className="flex items-center gap-2 px-1">

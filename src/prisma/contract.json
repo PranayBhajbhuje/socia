@@ -220,6 +220,13 @@
                   "codecId": "sqlite/text@1",
                   "kind": "scalar"
                 }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sqlite/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -269,6 +276,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "status": {
+                  "column": "status"
                 }
               },
               "namespaceId": "__unbound__",
@@ -631,7 +641,24 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "__unbound__"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "createdAt": {
@@ -768,6 +795,21 @@
                 },
                 "to": {
                   "model": "PostLike",
+                  "namespace": "__unbound__"
+                }
+              },
+              "stories": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "postId"
+                  ]
+                },
+                "to": {
+                  "model": "Story",
                   "namespace": "__unbound__"
                 }
               },
@@ -1248,7 +1290,14 @@
                 }
               },
               "mediaUrl": {
-                "nullable": false,
+                "nullable": true,
+                "type": {
+                  "codecId": "sqlite/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "postId": {
+                "nullable": true,
                 "type": {
                   "codecId": "sqlite/text@1",
                   "kind": "scalar"
@@ -1263,6 +1312,22 @@
               }
             },
             "relations": {
+              "post": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "postId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Post",
+                  "namespace": "__unbound__"
+                }
+              },
               "user": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1311,6 +1376,9 @@
                 },
                 "mediaUrl": {
                   "column": "mediaUrl"
+                },
+                "postId": {
+                  "column": "postId"
                 },
                 "userId": {
                   "column": "userId"
@@ -1624,6 +1692,21 @@
                 },
                 "to": {
                   "model": "Notification",
+                  "namespace": "__unbound__"
+                }
+              },
+              "passwordResetTokens": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "PasswordResetToken",
                   "namespace": "__unbound__"
                 }
               },
@@ -1946,6 +2029,15 @@
                 "id": {
                   "codecId": "sqlite/text@1",
                   "dataType": "sqlite/text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "sqlite/text@1",
+                  "dataType": "sqlite/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "accepted"
+                  },
                   "nullable": false
                 }
               },
@@ -2382,7 +2474,28 @@
                   "nullable": false
                 }
               },
-              "foreignKeys": [],
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "PasswordResetToken_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "__unbound__",
+                    "tableName": "PasswordResetToken"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "__unbound__",
+                    "tableName": "User"
+                  }
+                }
+              ],
               "indexes": [
                 {
                   "columns": [
@@ -2399,6 +2512,14 @@
                   ],
                   "name": "PasswordResetToken_userId_createdAt_idx_f726f04a",
                   "prefix": "PasswordResetToken_userId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "PasswordResetToken_userId_idx_a489d58a",
+                  "prefix": "PasswordResetToken_userId_idx",
                   "unique": false
                 }
               ],
@@ -3004,7 +3125,12 @@
                 "mediaUrl": {
                   "codecId": "sqlite/text@1",
                   "dataType": "sqlite/text",
-                  "nullable": false
+                  "nullable": true
+                },
+                "postId": {
+                  "codecId": "sqlite/text@1",
+                  "dataType": "sqlite/text",
+                  "nullable": true
                 },
                 "userId": {
                   "codecId": "sqlite/text@1",
@@ -3032,9 +3158,37 @@
                     "namespaceId": "__unbound__",
                     "tableName": "User"
                   }
+                },
+                {
+                  "index": {
+                    "name": "Story_postId_idx_a7a72715"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "postId"
+                    ],
+                    "namespaceId": "__unbound__",
+                    "tableName": "Story"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "__unbound__",
+                    "tableName": "Post"
+                  }
                 }
               ],
               "indexes": [
+                {
+                  "columns": [
+                    "postId"
+                  ],
+                  "name": "Story_postId_idx_a7a72715",
+                  "prefix": "Story_postId_idx",
+                  "unique": false
+                },
                 {
                   "columns": [
                     "userId",
@@ -3375,7 +3529,7 @@
         "id": "__unbound__"
       }
     },
-    "storageHash": "566bd2b5504d0aa94b2daac235cae299240dcbb6091045174285d2a3cc48723a"
+    "storageHash": "d78090a5699cd3896f7f197bfef1ece80ad68dec127e638c45917724c71dc3e7"
   },
   "execution": {
     "executionHash": "6f681a02140854a00197050b6c97a6912b344a0a84a53df2da6f09548a43c502",

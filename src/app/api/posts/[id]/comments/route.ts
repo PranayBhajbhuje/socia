@@ -10,7 +10,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const [comments, users, likes] = await Promise.all([db.orm.PostComment.where({ postId }).orderBy((comment) => comment.createdAt.asc()).all(), db.orm.User.all(), db.orm.PostCommentLike.all()]);
   const userById = new Map(users.map((user) => [user.id, user]));
   const commentsWithAuthors = comments.map((comment) => ({ id: comment.id, postId: comment.postId, authorId: comment.authorId, parentId: comment.parentId, body: comment.body, createdAt: comment.createdAt, author: userById.get(comment.authorId)?.username ?? "user", fullName: userById.get(comment.authorId)?.fullName ?? "User", likeCount: likes.filter((like) => like.commentId === comment.id).length, likedByMe: likes.some((like) => like.commentId === comment.id && like.userId === session.userId) }));
-  return NextResponse.json({ comments: commentsWithAuthors.filter((comment) => !comment.parentId).map((comment) => ({ ...comment, replies: commentsWithAuthors.filter((reply) => reply.parentId === comment.id) })) });
+  return NextResponse.json({ comments: commentsWithAuthors.filter((comment) => !comment.parentId).map((comment) => ({ ...comment, replies: commentsWithAuthors.filter((reply) => reply.parentId === comment.id).map((reply) => ({ ...reply, replies: [] })) })) });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {

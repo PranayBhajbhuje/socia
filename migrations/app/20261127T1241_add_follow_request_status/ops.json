@@ -1,0 +1,54 @@
+[
+  {
+    "id": "column.Follow.status",
+    "label": "Add column status on Follow",
+    "summary": "Adds column status on Follow",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "column",
+        "name": "status",
+        "table": "Follow"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM pragma_table_info(?1) WHERE \"name\" = ?2",
+        "params": [
+          "Follow",
+          "status"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"status\" on \"Follow\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"status\"",
+        "sql": "ALTER TABLE \"Follow\" ADD COLUMN \"status\" TEXT DEFAULT 'accepted' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"status\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM pragma_table_info(?1) WHERE \"name\" = ?2",
+        "params": [
+          "Follow",
+          "status"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"status\" on \"Follow\""
+        }
+      },
+      {
+        "description": "verify column \"status\" on \"Follow\" has type TEXT and is required",
+        "sql": "SELECT COUNT(*) > 0 FROM pragma_table_info('Follow') WHERE name = 'status' AND LOWER(type) = 'text' AND \"notnull\" = 1"
+      }
+    ]
+  }
+]

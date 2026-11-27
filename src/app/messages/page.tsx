@@ -5,6 +5,7 @@ import { db } from "@/prisma/db";
 import BottomNav from "@/components/BottomNav";
 import SettingsLink from "@/components/SettingsLink";
 import UserAvatar from "@/components/UserAvatar";
+import { getMessagePreview } from "@/lib/shared-post-message";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export default async function MessagesPage() {
           ) : <div className="divide-y divide-zinc-100 dark:divide-zinc-800">{sorted.map((row) => row && (
             <Link key={row.conversation.id} href={`/messages/${encodeURIComponent(row.conversation.id)}`} className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:hover:bg-zinc-900">
               <UserAvatar src={row.other.avatarUrl} name={row.other.fullName} sizeClass="h-12 w-12" />
-              <div className="min-w-0 flex-1"><p className="truncate font-semibold text-zinc-900 dark:text-zinc-100">{row.other.fullName}</p><p className={`truncate text-sm ${row.unread ? "font-medium text-zinc-800 dark:text-zinc-200" : "text-zinc-500 dark:text-zinc-400"}`}>{row.last ? `${row.last.senderId === session.userId ? "You: " : ""}${row.last.body}` : "Start a conversation"}</p></div>
+              <div className="min-w-0 flex-1"><p className="truncate font-semibold text-zinc-900 dark:text-zinc-100">{row.other.fullName}</p><p className={`truncate text-sm ${row.unread ? "font-medium text-zinc-800 dark:text-zinc-200" : "text-zinc-500 dark:text-zinc-400"}`}>{row.last ? `${row.last.senderId === session.userId ? "You: " : ""}${getMessagePreview(row.last.body)}` : "Start a conversation"}</p></div>
               <div className="flex shrink-0 flex-col items-end gap-2">{row.last && <time dateTime={row.last.createdAt.toISOString()} className="text-[10px] text-zinc-500 dark:text-zinc-400">{formatMessageTime(row.last.createdAt)}</time>}{row.unread && <span aria-label="Unread messages" className="h-2.5 w-2.5 rounded-full bg-blue-600" />}</div>
             </Link>
           ))}</div>}

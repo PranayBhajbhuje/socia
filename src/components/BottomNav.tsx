@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { CreatePostModal } from "@/components/CreatePostModal";
+import { ActivityBadge, useActivityCounts } from "@/components/useActivityCounts";
 
 function NavIcon({ name }: { name: "home" | "video" | "inbox" | "people" | "profile" }) {
   const paths = {
@@ -18,6 +19,7 @@ function NavIcon({ name }: { name: "home" | "video" | "inbox" | "people" | "prof
 export default function BottomNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const activity = useActivityCounts();
   const videoActive = pathname === "/" && searchParams.get("tab") === "video";
   const homeActive = pathname === "/" && !videoActive;
   const profileActive = pathname === "/profile" || pathname.startsWith("/profile/") || pathname === "/settings" || pathname.startsWith("/settings/") || pathname === "/saved";
@@ -42,7 +44,7 @@ export default function BottomNav() {
       <CreatePostModal compact />
 
       <Link href="/messages" aria-current={pathname.startsWith("/messages") ? "page" : undefined} className={itemClass(pathname.startsWith("/messages"))}>
-        <NavIcon name="inbox" />
+        <span className="relative"><NavIcon name="inbox" /><ActivityBadge count={activity.messages} label="unread messages" /></span>
         <span>Inbox</span>
       </Link>
 

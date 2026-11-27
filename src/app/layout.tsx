@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/prisma/db";
+import MessageToast from "@/components/MessageToast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default async function RootLayout({
         <div className="mx-auto min-h-screen w-full max-w-md bg-white shadow-sm dark:bg-neutral-950">
           {children}
         </div>
+        {session && <MessageToast userId={session.userId} />}
       </body>
     </html>
   );

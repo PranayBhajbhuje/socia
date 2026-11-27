@@ -48,13 +48,16 @@ export default function LoginForm({ accountCreated, initialEmail }: { accountCre
               <input id="login-password" name="password" required type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(event) => { setPassword(event.target.value); setError(""); }} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} className={`${inputClass} pr-16`} />
               <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => setShowPassword((shown) => !shown)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} className="absolute inset-y-0 right-3 my-1 rounded-md px-2 text-xs font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white">{showPassword ? "Hide" : "Show"}</button>
             </div>
+            <div className="mt-2 text-right">
+              <Link href="/forgot-password" className="text-sm font-medium text-blue-700 underline underline-offset-2 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 dark:hover:text-blue-300">Forgot password?</Link>
+            </div>
           </div>
           {error && <p id="login-error" role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
           <button type="submit" disabled={!canSubmit || submitting} aria-busy={submitting} className="w-full rounded-full bg-zinc-900 py-3.5 text-sm font-semibold text-white transition hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500">{submitting ? "Signing in…" : "Log in"}</button>
         </form>
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
-          <Link href="/forgot-password" className="font-semibold text-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400">Forgot password?</Link>
-          <span className="text-zinc-600 dark:text-zinc-400">New here? <Link href="/signup" className="font-semibold text-zinc-900 underline underline-offset-2 dark:text-zinc-100">Create account</Link></span>
+        <div className="mt-7 border-t border-zinc-200 pt-5 text-center text-sm dark:border-zinc-800">
+          <span className="text-zinc-600 dark:text-zinc-400">Don&apos;t have an account? </span>
+          <Link href="/signup" className="font-semibold text-blue-700 underline underline-offset-2 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 dark:hover:text-blue-300">Create account</Link>
         </div>
       </div>
     </section>

@@ -1,0 +1,2706 @@
+[
+  {
+    "id": "table.AuthRateLimitBucket",
+    "label": "Create table AuthRateLimitBucket",
+    "summary": "Creates table AuthRateLimitBucket with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "AuthRateLimitBucket"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"AuthRateLimitBucket\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "AuthRateLimitBucket"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"AuthRateLimitBucket\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"AuthRateLimitBucket\"",
+        "sql": "CREATE TABLE \"AuthRateLimitBucket\" (\n  \"keyHash\" TEXT NOT NULL,\n  \"requestCount\" INTEGER NOT NULL,\n  \"windowStartedAt\" TEXT NOT NULL,\n  PRIMARY KEY (\"keyHash\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"AuthRateLimitBucket\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "AuthRateLimitBucket"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"AuthRateLimitBucket\""
+        }
+      },
+      {
+        "description": "verify table \"AuthRateLimitBucket\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('AuthRateLimitBucket')) = 3 AND (SELECT COUNT(*) FROM pragma_table_info('AuthRateLimitBucket') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('keyHash', 'text', 1, 1), ('requestCount', 'integer', 1, 0), ('windowStartedAt', 'text', 1, 0))) = 3"
+      }
+    ]
+  },
+  {
+    "id": "table.Conversation",
+    "label": "Create table Conversation",
+    "summary": "Creates table Conversation with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Conversation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Conversation\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Conversation"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Conversation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Conversation\"",
+        "sql": "CREATE TABLE \"Conversation\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"updatedAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"userOneId\" TEXT NOT NULL,\n  \"userTwoId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"userOneId\", \"userTwoId\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Conversation\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Conversation"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Conversation\""
+        }
+      },
+      {
+        "description": "verify table \"Conversation\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Conversation')) = 5 AND (SELECT COUNT(*) FROM pragma_table_info('Conversation') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('updatedAt', 'text', 1, 0), ('userOneId', 'text', 1, 0), ('userTwoId', 'text', 1, 0))) = 5"
+      }
+    ]
+  },
+  {
+    "id": "table.Follow",
+    "label": "Create table Follow",
+    "summary": "Creates table Follow with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Follow"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Follow\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Follow"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Follow\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Follow\"",
+        "sql": "CREATE TABLE \"Follow\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"followerId\" TEXT NOT NULL,\n  \"followingId\" TEXT NOT NULL,\n  \"id\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"followerId\", \"followingId\"),\n  FOREIGN KEY (\"followerId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"followingId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Follow\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Follow"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Follow\""
+        }
+      },
+      {
+        "description": "verify table \"Follow\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Follow')) = 4 AND (SELECT COUNT(*) FROM pragma_table_info('Follow') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('followerId', 'text', 1, 0), ('followingId', 'text', 1, 0), ('id', 'text', 1, 1))) = 4"
+      }
+    ]
+  },
+  {
+    "id": "table.Message",
+    "label": "Create table Message",
+    "summary": "Creates table Message with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Message\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Message"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Message\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Message\"",
+        "sql": "CREATE TABLE \"Message\" (\n  \"body\" TEXT NOT NULL,\n  \"conversationId\" TEXT NOT NULL,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"readAt\" TEXT,\n  \"senderId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"conversationId\") REFERENCES \"Conversation\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Message\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Message"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Message\""
+        }
+      },
+      {
+        "description": "verify table \"Message\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Message')) = 6 AND (SELECT COUNT(*) FROM pragma_table_info('Message') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('body', 'text', 1, 0), ('conversationId', 'text', 1, 0), ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('readAt', 'text', 0, 0), ('senderId', 'text', 1, 0))) = 6"
+      }
+    ]
+  },
+  {
+    "id": "table.MessageReaction",
+    "label": "Create table MessageReaction",
+    "summary": "Creates table MessageReaction with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "MessageReaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"MessageReaction\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "MessageReaction"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"MessageReaction\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"MessageReaction\"",
+        "sql": "CREATE TABLE \"MessageReaction\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"messageId\" TEXT NOT NULL,\n  \"reaction\" TEXT NOT NULL DEFAULT 'heart',\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"userId\", \"messageId\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"messageId\") REFERENCES \"Message\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"MessageReaction\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "MessageReaction"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"MessageReaction\""
+        }
+      },
+      {
+        "description": "verify table \"MessageReaction\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('MessageReaction')) = 5 AND (SELECT COUNT(*) FROM pragma_table_info('MessageReaction') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('messageId', 'text', 1, 0), ('reaction', 'text', 1, 0), ('userId', 'text', 1, 0))) = 5"
+      }
+    ]
+  },
+  {
+    "id": "table.Notification",
+    "label": "Create table Notification",
+    "summary": "Creates table Notification with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Notification"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Notification\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Notification"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Notification\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Notification\"",
+        "sql": "CREATE TABLE \"Notification\" (\n  \"actorId\" TEXT NOT NULL,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"entityId\" TEXT,\n  \"id\" TEXT NOT NULL,\n  \"readAt\" TEXT,\n  \"type\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"actorId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Notification\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Notification"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Notification\""
+        }
+      },
+      {
+        "description": "verify table \"Notification\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Notification')) = 7 AND (SELECT COUNT(*) FROM pragma_table_info('Notification') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('actorId', 'text', 1, 0), ('createdAt', 'text', 1, 0), ('entityId', 'text', 0, 0), ('id', 'text', 1, 1), ('readAt', 'text', 0, 0), ('type', 'text', 1, 0), ('userId', 'text', 1, 0))) = 7"
+      }
+    ]
+  },
+  {
+    "id": "table.PasswordResetToken",
+    "label": "Create table PasswordResetToken",
+    "summary": "Creates table PasswordResetToken with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "PasswordResetToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PasswordResetToken\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PasswordResetToken"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PasswordResetToken\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PasswordResetToken\"",
+        "sql": "CREATE TABLE \"PasswordResetToken\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"expiresAt\" TEXT NOT NULL,\n  \"id\" TEXT NOT NULL,\n  \"tokenHash\" TEXT NOT NULL,\n  \"usedAt\" TEXT,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"tokenHash\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PasswordResetToken\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PasswordResetToken"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PasswordResetToken\""
+        }
+      },
+      {
+        "description": "verify table \"PasswordResetToken\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('PasswordResetToken')) = 6 AND (SELECT COUNT(*) FROM pragma_table_info('PasswordResetToken') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('expiresAt', 'text', 1, 0), ('id', 'text', 1, 1), ('tokenHash', 'text', 1, 0), ('usedAt', 'text', 0, 0), ('userId', 'text', 1, 0))) = 6"
+      }
+    ]
+  },
+  {
+    "id": "table.Post",
+    "label": "Create table Post",
+    "summary": "Creates table Post with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Post"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Post\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Post"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Post\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Post\"",
+        "sql": "CREATE TABLE \"Post\" (\n  \"authorId\" TEXT NOT NULL,\n  \"content\" TEXT,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"mediaUrl\" TEXT,\n  \"musicTitle\" TEXT,\n  \"type\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"authorId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Post\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Post"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Post\""
+        }
+      },
+      {
+        "description": "verify table \"Post\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Post')) = 7 AND (SELECT COUNT(*) FROM pragma_table_info('Post') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('authorId', 'text', 1, 0), ('content', 'text', 0, 0), ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('mediaUrl', 'text', 0, 0), ('musicTitle', 'text', 0, 0), ('type', 'text', 1, 0))) = 7"
+      }
+    ]
+  },
+  {
+    "id": "table.PostBookmark",
+    "label": "Create table PostBookmark",
+    "summary": "Creates table PostBookmark with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "PostBookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PostBookmark\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostBookmark"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PostBookmark\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PostBookmark\"",
+        "sql": "CREATE TABLE \"PostBookmark\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"postId\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"userId\", \"postId\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"postId\") REFERENCES \"Post\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PostBookmark\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostBookmark"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PostBookmark\""
+        }
+      },
+      {
+        "description": "verify table \"PostBookmark\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('PostBookmark')) = 4 AND (SELECT COUNT(*) FROM pragma_table_info('PostBookmark') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('postId', 'text', 1, 0), ('userId', 'text', 1, 0))) = 4"
+      }
+    ]
+  },
+  {
+    "id": "table.PostComment",
+    "label": "Create table PostComment",
+    "summary": "Creates table PostComment with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "PostComment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PostComment\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostComment"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PostComment\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PostComment\"",
+        "sql": "CREATE TABLE \"PostComment\" (\n  \"authorId\" TEXT NOT NULL,\n  \"body\" TEXT NOT NULL,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"parentId\" TEXT,\n  \"postId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"postId\") REFERENCES \"Post\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"authorId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"parentId\") REFERENCES \"PostComment\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PostComment\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostComment"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PostComment\""
+        }
+      },
+      {
+        "description": "verify table \"PostComment\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('PostComment')) = 6 AND (SELECT COUNT(*) FROM pragma_table_info('PostComment') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('authorId', 'text', 1, 0), ('body', 'text', 1, 0), ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('parentId', 'text', 0, 0), ('postId', 'text', 1, 0))) = 6"
+      }
+    ]
+  },
+  {
+    "id": "table.PostCommentLike",
+    "label": "Create table PostCommentLike",
+    "summary": "Creates table PostCommentLike with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "PostCommentLike"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PostCommentLike\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostCommentLike"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PostCommentLike\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PostCommentLike\"",
+        "sql": "CREATE TABLE \"PostCommentLike\" (\n  \"commentId\" TEXT NOT NULL,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"userId\", \"commentId\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"commentId\") REFERENCES \"PostComment\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PostCommentLike\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostCommentLike"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PostCommentLike\""
+        }
+      },
+      {
+        "description": "verify table \"PostCommentLike\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('PostCommentLike')) = 4 AND (SELECT COUNT(*) FROM pragma_table_info('PostCommentLike') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('commentId', 'text', 1, 0), ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('userId', 'text', 1, 0))) = 4"
+      }
+    ]
+  },
+  {
+    "id": "table.PostLike",
+    "label": "Create table PostLike",
+    "summary": "Creates table PostLike with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "PostLike"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PostLike\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostLike"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PostLike\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PostLike\"",
+        "sql": "CREATE TABLE \"PostLike\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"postId\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"userId\", \"postId\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"postId\") REFERENCES \"Post\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PostLike\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PostLike"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PostLike\""
+        }
+      },
+      {
+        "description": "verify table \"PostLike\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('PostLike')) = 4 AND (SELECT COUNT(*) FROM pragma_table_info('PostLike') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('postId', 'text', 1, 0), ('userId', 'text', 1, 0))) = 4"
+      }
+    ]
+  },
+  {
+    "id": "table.Story",
+    "label": "Create table Story",
+    "summary": "Creates table Story with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Story"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Story\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Story"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Story\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Story\"",
+        "sql": "CREATE TABLE \"Story\" (\n  \"caption\" TEXT,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"expiresAt\" TEXT NOT NULL,\n  \"id\" TEXT NOT NULL,\n  \"mediaUrl\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Story\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Story"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Story\""
+        }
+      },
+      {
+        "description": "verify table \"Story\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Story')) = 6 AND (SELECT COUNT(*) FROM pragma_table_info('Story') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('caption', 'text', 0, 0), ('createdAt', 'text', 1, 0), ('expiresAt', 'text', 1, 0), ('id', 'text', 1, 1), ('mediaUrl', 'text', 1, 0), ('userId', 'text', 1, 0))) = 6"
+      }
+    ]
+  },
+  {
+    "id": "table.StoryView",
+    "label": "Create table StoryView",
+    "summary": "Creates table StoryView with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "StoryView"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"StoryView\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "StoryView"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"StoryView\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"StoryView\"",
+        "sql": "CREATE TABLE \"StoryView\" (\n  \"id\" TEXT NOT NULL,\n  \"storyId\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  \"viewedAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"storyId\", \"userId\"),\n  FOREIGN KEY (\"storyId\") REFERENCES \"Story\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"StoryView\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "StoryView"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"StoryView\""
+        }
+      },
+      {
+        "description": "verify table \"StoryView\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('StoryView')) = 4 AND (SELECT COUNT(*) FROM pragma_table_info('StoryView') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('id', 'text', 1, 1), ('storyId', 'text', 1, 0), ('userId', 'text', 1, 0), ('viewedAt', 'text', 1, 0))) = 4"
+      }
+    ]
+  },
+  {
+    "id": "table.User",
+    "label": "Create table User",
+    "summary": "Creates table User with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"User\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "User"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"User\"",
+        "sql": "CREATE TABLE \"User\" (\n  \"avatarUrl\" TEXT,\n  \"bio\" TEXT,\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"email\" TEXT NOT NULL,\n  \"fullName\" TEXT NOT NULL,\n  \"id\" TEXT NOT NULL,\n  \"language\" TEXT NOT NULL DEFAULT 'en',\n  \"passwordHash\" TEXT NOT NULL,\n  \"sessionVersion\" INTEGER NOT NULL DEFAULT 0,\n  \"theme\" TEXT NOT NULL DEFAULT 'light',\n  \"username\" TEXT NOT NULL,\n  \"websiteUrl\" TEXT,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"email\"),\n  UNIQUE (\"username\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"User\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "User"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"User\""
+        }
+      },
+      {
+        "description": "verify table \"User\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('User')) = 12 AND (SELECT COUNT(*) FROM pragma_table_info('User') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('avatarUrl', 'text', 0, 0), ('bio', 'text', 0, 0), ('createdAt', 'text', 1, 0), ('email', 'text', 1, 0), ('fullName', 'text', 1, 0), ('id', 'text', 1, 1), ('language', 'text', 1, 0), ('passwordHash', 'text', 1, 0), ('sessionVersion', 'integer', 1, 0), ('theme', 'text', 1, 0), ('username', 'text', 1, 0), ('websiteUrl', 'text', 0, 0))) = 12"
+      }
+    ]
+  },
+  {
+    "id": "table.VideoView",
+    "label": "Create table VideoView",
+    "summary": "Creates table VideoView with required columns",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "VideoView"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"VideoView\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "VideoView"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"VideoView\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"VideoView\"",
+        "sql": "CREATE TABLE \"VideoView\" (\n  \"createdAt\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n  \"id\" TEXT NOT NULL,\n  \"postId\" TEXT NOT NULL,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  UNIQUE (\"userId\", \"postId\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"postId\") REFERENCES \"Post\" (\"id\") ON DELETE CASCADE\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"VideoView\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "VideoView"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"VideoView\""
+        }
+      },
+      {
+        "description": "verify table \"VideoView\" has exactly its columns",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('VideoView')) = 4 AND (SELECT COUNT(*) FROM pragma_table_info('VideoView') WHERE (name, LOWER(type), \"notnull\", pk) IN (VALUES ('createdAt', 'text', 1, 0), ('id', 'text', 1, 1), ('postId', 'text', 1, 0), ('userId', 'text', 1, 0))) = 4"
+      }
+    ]
+  },
+  {
+    "id": "index.Conversation.Conversation_userOneId_updatedAt_idx_7ad371f3",
+    "label": "Create index Conversation_userOneId_updatedAt_idx_7ad371f3 on Conversation",
+    "summary": "Creates index Conversation_userOneId_updatedAt_idx_7ad371f3 on Conversation",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Conversation_userOneId_updatedAt_idx_7ad371f3",
+        "table": "Conversation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Conversation_userOneId_updatedAt_idx_7ad371f3\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Conversation_userOneId_updatedAt_idx_7ad371f3"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Conversation_userOneId_updatedAt_idx_7ad371f3\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Conversation_userOneId_updatedAt_idx_7ad371f3\"",
+        "sql": "CREATE INDEX \"Conversation_userOneId_updatedAt_idx_7ad371f3\" ON \"Conversation\" (\"userOneId\", \"updatedAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Conversation_userOneId_updatedAt_idx_7ad371f3\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Conversation_userOneId_updatedAt_idx_7ad371f3"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Conversation_userOneId_updatedAt_idx_7ad371f3\""
+        }
+      },
+      {
+        "description": "verify index \"Conversation_userOneId_updatedAt_idx_7ad371f3\" on \"Conversation\" covers (userOneId, updatedAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Conversation') WHERE name = 'Conversation_userOneId_updatedAt_idx_7ad371f3' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Conversation_userOneId_updatedAt_idx_7ad371f3')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Conversation_userOneId_updatedAt_idx_7ad371f3') WHERE (seqno, name) IN (VALUES (0, 'userOneId'), (1, 'updatedAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Conversation.Conversation_userTwoId_updatedAt_idx_4a3ecd7a",
+    "label": "Create index Conversation_userTwoId_updatedAt_idx_4a3ecd7a on Conversation",
+    "summary": "Creates index Conversation_userTwoId_updatedAt_idx_4a3ecd7a on Conversation",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Conversation_userTwoId_updatedAt_idx_4a3ecd7a",
+        "table": "Conversation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Conversation_userTwoId_updatedAt_idx_4a3ecd7a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\"",
+        "sql": "CREATE INDEX \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\" ON \"Conversation\" (\"userTwoId\", \"updatedAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Conversation_userTwoId_updatedAt_idx_4a3ecd7a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\""
+        }
+      },
+      {
+        "description": "verify index \"Conversation_userTwoId_updatedAt_idx_4a3ecd7a\" on \"Conversation\" covers (userTwoId, updatedAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Conversation') WHERE name = 'Conversation_userTwoId_updatedAt_idx_4a3ecd7a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Conversation_userTwoId_updatedAt_idx_4a3ecd7a')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Conversation_userTwoId_updatedAt_idx_4a3ecd7a') WHERE (seqno, name) IN (VALUES (0, 'userTwoId'), (1, 'updatedAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Follow.Follow_followerId_idx_2aa6c62d",
+    "label": "Create index Follow_followerId_idx_2aa6c62d on Follow",
+    "summary": "Creates index Follow_followerId_idx_2aa6c62d on Follow",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Follow_followerId_idx_2aa6c62d",
+        "table": "Follow"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Follow_followerId_idx_2aa6c62d\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Follow_followerId_idx_2aa6c62d"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Follow_followerId_idx_2aa6c62d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Follow_followerId_idx_2aa6c62d\"",
+        "sql": "CREATE INDEX \"Follow_followerId_idx_2aa6c62d\" ON \"Follow\" (\"followerId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Follow_followerId_idx_2aa6c62d\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Follow_followerId_idx_2aa6c62d"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Follow_followerId_idx_2aa6c62d\""
+        }
+      },
+      {
+        "description": "verify index \"Follow_followerId_idx_2aa6c62d\" on \"Follow\" covers (followerId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Follow') WHERE name = 'Follow_followerId_idx_2aa6c62d' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Follow_followerId_idx_2aa6c62d')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Follow_followerId_idx_2aa6c62d') WHERE (seqno, name) IN (VALUES (0, 'followerId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Follow.Follow_followingId_idx_1cf16645",
+    "label": "Create index Follow_followingId_idx_1cf16645 on Follow",
+    "summary": "Creates index Follow_followingId_idx_1cf16645 on Follow",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Follow_followingId_idx_1cf16645",
+        "table": "Follow"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Follow_followingId_idx_1cf16645\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Follow_followingId_idx_1cf16645"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Follow_followingId_idx_1cf16645\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Follow_followingId_idx_1cf16645\"",
+        "sql": "CREATE INDEX \"Follow_followingId_idx_1cf16645\" ON \"Follow\" (\"followingId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Follow_followingId_idx_1cf16645\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Follow_followingId_idx_1cf16645"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Follow_followingId_idx_1cf16645\""
+        }
+      },
+      {
+        "description": "verify index \"Follow_followingId_idx_1cf16645\" on \"Follow\" covers (followingId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Follow') WHERE name = 'Follow_followingId_idx_1cf16645' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Follow_followingId_idx_1cf16645')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Follow_followingId_idx_1cf16645') WHERE (seqno, name) IN (VALUES (0, 'followingId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_conversationId_createdAt_idx_44d4ac61",
+    "label": "Create index Message_conversationId_createdAt_idx_44d4ac61 on Message",
+    "summary": "Creates index Message_conversationId_createdAt_idx_44d4ac61 on Message",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Message_conversationId_createdAt_idx_44d4ac61",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_conversationId_createdAt_idx_44d4ac61\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Message_conversationId_createdAt_idx_44d4ac61"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Message_conversationId_createdAt_idx_44d4ac61\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_conversationId_createdAt_idx_44d4ac61\"",
+        "sql": "CREATE INDEX \"Message_conversationId_createdAt_idx_44d4ac61\" ON \"Message\" (\"conversationId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_conversationId_createdAt_idx_44d4ac61\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Message_conversationId_createdAt_idx_44d4ac61"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Message_conversationId_createdAt_idx_44d4ac61\""
+        }
+      },
+      {
+        "description": "verify index \"Message_conversationId_createdAt_idx_44d4ac61\" on \"Message\" covers (conversationId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Message') WHERE name = 'Message_conversationId_createdAt_idx_44d4ac61' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Message_conversationId_createdAt_idx_44d4ac61')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Message_conversationId_createdAt_idx_44d4ac61') WHERE (seqno, name) IN (VALUES (0, 'conversationId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_conversationId_idx_669215a6",
+    "label": "Create index Message_conversationId_idx_669215a6 on Message",
+    "summary": "Creates index Message_conversationId_idx_669215a6 on Message",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Message_conversationId_idx_669215a6",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_conversationId_idx_669215a6\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Message_conversationId_idx_669215a6"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Message_conversationId_idx_669215a6\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_conversationId_idx_669215a6\"",
+        "sql": "CREATE INDEX \"Message_conversationId_idx_669215a6\" ON \"Message\" (\"conversationId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_conversationId_idx_669215a6\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Message_conversationId_idx_669215a6"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Message_conversationId_idx_669215a6\""
+        }
+      },
+      {
+        "description": "verify index \"Message_conversationId_idx_669215a6\" on \"Message\" covers (conversationId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Message') WHERE name = 'Message_conversationId_idx_669215a6' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Message_conversationId_idx_669215a6')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Message_conversationId_idx_669215a6') WHERE (seqno, name) IN (VALUES (0, 'conversationId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Message.Message_senderId_createdAt_idx_ed252b01",
+    "label": "Create index Message_senderId_createdAt_idx_ed252b01 on Message",
+    "summary": "Creates index Message_senderId_createdAt_idx_ed252b01 on Message",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Message_senderId_createdAt_idx_ed252b01",
+        "table": "Message"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Message_senderId_createdAt_idx_ed252b01\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Message_senderId_createdAt_idx_ed252b01"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Message_senderId_createdAt_idx_ed252b01\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Message_senderId_createdAt_idx_ed252b01\"",
+        "sql": "CREATE INDEX \"Message_senderId_createdAt_idx_ed252b01\" ON \"Message\" (\"senderId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Message_senderId_createdAt_idx_ed252b01\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Message_senderId_createdAt_idx_ed252b01"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Message_senderId_createdAt_idx_ed252b01\""
+        }
+      },
+      {
+        "description": "verify index \"Message_senderId_createdAt_idx_ed252b01\" on \"Message\" covers (senderId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Message') WHERE name = 'Message_senderId_createdAt_idx_ed252b01' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Message_senderId_createdAt_idx_ed252b01')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Message_senderId_createdAt_idx_ed252b01') WHERE (seqno, name) IN (VALUES (0, 'senderId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.MessageReaction.MessageReaction_messageId_idx_3cdded8d",
+    "label": "Create index MessageReaction_messageId_idx_3cdded8d on MessageReaction",
+    "summary": "Creates index MessageReaction_messageId_idx_3cdded8d on MessageReaction",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "MessageReaction_messageId_idx_3cdded8d",
+        "table": "MessageReaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MessageReaction_messageId_idx_3cdded8d\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "MessageReaction_messageId_idx_3cdded8d"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"MessageReaction_messageId_idx_3cdded8d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MessageReaction_messageId_idx_3cdded8d\"",
+        "sql": "CREATE INDEX \"MessageReaction_messageId_idx_3cdded8d\" ON \"MessageReaction\" (\"messageId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MessageReaction_messageId_idx_3cdded8d\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "MessageReaction_messageId_idx_3cdded8d"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"MessageReaction_messageId_idx_3cdded8d\""
+        }
+      },
+      {
+        "description": "verify index \"MessageReaction_messageId_idx_3cdded8d\" on \"MessageReaction\" covers (messageId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('MessageReaction') WHERE name = 'MessageReaction_messageId_idx_3cdded8d' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('MessageReaction_messageId_idx_3cdded8d')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('MessageReaction_messageId_idx_3cdded8d') WHERE (seqno, name) IN (VALUES (0, 'messageId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.MessageReaction.MessageReaction_userId_idx_a489d58a",
+    "label": "Create index MessageReaction_userId_idx_a489d58a on MessageReaction",
+    "summary": "Creates index MessageReaction_userId_idx_a489d58a on MessageReaction",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "MessageReaction_userId_idx_a489d58a",
+        "table": "MessageReaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MessageReaction_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "MessageReaction_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"MessageReaction_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MessageReaction_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"MessageReaction_userId_idx_a489d58a\" ON \"MessageReaction\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MessageReaction_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "MessageReaction_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"MessageReaction_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"MessageReaction_userId_idx_a489d58a\" on \"MessageReaction\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('MessageReaction') WHERE name = 'MessageReaction_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('MessageReaction_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('MessageReaction_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Notification.Notification_actorId_idx_a58f6b4b",
+    "label": "Create index Notification_actorId_idx_a58f6b4b on Notification",
+    "summary": "Creates index Notification_actorId_idx_a58f6b4b on Notification",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Notification_actorId_idx_a58f6b4b",
+        "table": "Notification"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Notification_actorId_idx_a58f6b4b\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Notification_actorId_idx_a58f6b4b"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Notification_actorId_idx_a58f6b4b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Notification_actorId_idx_a58f6b4b\"",
+        "sql": "CREATE INDEX \"Notification_actorId_idx_a58f6b4b\" ON \"Notification\" (\"actorId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Notification_actorId_idx_a58f6b4b\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Notification_actorId_idx_a58f6b4b"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Notification_actorId_idx_a58f6b4b\""
+        }
+      },
+      {
+        "description": "verify index \"Notification_actorId_idx_a58f6b4b\" on \"Notification\" covers (actorId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Notification') WHERE name = 'Notification_actorId_idx_a58f6b4b' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Notification_actorId_idx_a58f6b4b')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Notification_actorId_idx_a58f6b4b') WHERE (seqno, name) IN (VALUES (0, 'actorId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Notification.Notification_userId_createdAt_idx_f726f04a",
+    "label": "Create index Notification_userId_createdAt_idx_f726f04a on Notification",
+    "summary": "Creates index Notification_userId_createdAt_idx_f726f04a on Notification",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Notification_userId_createdAt_idx_f726f04a",
+        "table": "Notification"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Notification_userId_createdAt_idx_f726f04a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Notification_userId_createdAt_idx_f726f04a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Notification_userId_createdAt_idx_f726f04a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Notification_userId_createdAt_idx_f726f04a\"",
+        "sql": "CREATE INDEX \"Notification_userId_createdAt_idx_f726f04a\" ON \"Notification\" (\"userId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Notification_userId_createdAt_idx_f726f04a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Notification_userId_createdAt_idx_f726f04a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Notification_userId_createdAt_idx_f726f04a\""
+        }
+      },
+      {
+        "description": "verify index \"Notification_userId_createdAt_idx_f726f04a\" on \"Notification\" covers (userId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Notification') WHERE name = 'Notification_userId_createdAt_idx_f726f04a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Notification_userId_createdAt_idx_f726f04a')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Notification_userId_createdAt_idx_f726f04a') WHERE (seqno, name) IN (VALUES (0, 'userId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Notification.Notification_userId_idx_a489d58a",
+    "label": "Create index Notification_userId_idx_a489d58a on Notification",
+    "summary": "Creates index Notification_userId_idx_a489d58a on Notification",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Notification_userId_idx_a489d58a",
+        "table": "Notification"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Notification_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Notification_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Notification_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Notification_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"Notification_userId_idx_a489d58a\" ON \"Notification\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Notification_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Notification_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Notification_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"Notification_userId_idx_a489d58a\" on \"Notification\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Notification') WHERE name = 'Notification_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Notification_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Notification_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PasswordResetToken.PasswordResetToken_expiresAt_idx_6b6b8c10",
+    "label": "Create index PasswordResetToken_expiresAt_idx_6b6b8c10 on PasswordResetToken",
+    "summary": "Creates index PasswordResetToken_expiresAt_idx_6b6b8c10 on PasswordResetToken",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PasswordResetToken_expiresAt_idx_6b6b8c10",
+        "table": "PasswordResetToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PasswordResetToken_expiresAt_idx_6b6b8c10\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PasswordResetToken_expiresAt_idx_6b6b8c10"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PasswordResetToken_expiresAt_idx_6b6b8c10\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PasswordResetToken_expiresAt_idx_6b6b8c10\"",
+        "sql": "CREATE INDEX \"PasswordResetToken_expiresAt_idx_6b6b8c10\" ON \"PasswordResetToken\" (\"expiresAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PasswordResetToken_expiresAt_idx_6b6b8c10\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PasswordResetToken_expiresAt_idx_6b6b8c10"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PasswordResetToken_expiresAt_idx_6b6b8c10\""
+        }
+      },
+      {
+        "description": "verify index \"PasswordResetToken_expiresAt_idx_6b6b8c10\" on \"PasswordResetToken\" covers (expiresAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PasswordResetToken') WHERE name = 'PasswordResetToken_expiresAt_idx_6b6b8c10' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PasswordResetToken_expiresAt_idx_6b6b8c10')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PasswordResetToken_expiresAt_idx_6b6b8c10') WHERE (seqno, name) IN (VALUES (0, 'expiresAt'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PasswordResetToken.PasswordResetToken_userId_createdAt_idx_f726f04a",
+    "label": "Create index PasswordResetToken_userId_createdAt_idx_f726f04a on PasswordResetToken",
+    "summary": "Creates index PasswordResetToken_userId_createdAt_idx_f726f04a on PasswordResetToken",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PasswordResetToken_userId_createdAt_idx_f726f04a",
+        "table": "PasswordResetToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PasswordResetToken_userId_createdAt_idx_f726f04a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PasswordResetToken_userId_createdAt_idx_f726f04a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PasswordResetToken_userId_createdAt_idx_f726f04a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PasswordResetToken_userId_createdAt_idx_f726f04a\"",
+        "sql": "CREATE INDEX \"PasswordResetToken_userId_createdAt_idx_f726f04a\" ON \"PasswordResetToken\" (\"userId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PasswordResetToken_userId_createdAt_idx_f726f04a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PasswordResetToken_userId_createdAt_idx_f726f04a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PasswordResetToken_userId_createdAt_idx_f726f04a\""
+        }
+      },
+      {
+        "description": "verify index \"PasswordResetToken_userId_createdAt_idx_f726f04a\" on \"PasswordResetToken\" covers (userId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PasswordResetToken') WHERE name = 'PasswordResetToken_userId_createdAt_idx_f726f04a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PasswordResetToken_userId_createdAt_idx_f726f04a')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('PasswordResetToken_userId_createdAt_idx_f726f04a') WHERE (seqno, name) IN (VALUES (0, 'userId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Post.Post_authorId_createdAt_idx_854b4c86",
+    "label": "Create index Post_authorId_createdAt_idx_854b4c86 on Post",
+    "summary": "Creates index Post_authorId_createdAt_idx_854b4c86 on Post",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Post_authorId_createdAt_idx_854b4c86",
+        "table": "Post"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Post_authorId_createdAt_idx_854b4c86\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Post_authorId_createdAt_idx_854b4c86"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Post_authorId_createdAt_idx_854b4c86\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Post_authorId_createdAt_idx_854b4c86\"",
+        "sql": "CREATE INDEX \"Post_authorId_createdAt_idx_854b4c86\" ON \"Post\" (\"authorId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Post_authorId_createdAt_idx_854b4c86\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Post_authorId_createdAt_idx_854b4c86"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Post_authorId_createdAt_idx_854b4c86\""
+        }
+      },
+      {
+        "description": "verify index \"Post_authorId_createdAt_idx_854b4c86\" on \"Post\" covers (authorId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Post') WHERE name = 'Post_authorId_createdAt_idx_854b4c86' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Post_authorId_createdAt_idx_854b4c86')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Post_authorId_createdAt_idx_854b4c86') WHERE (seqno, name) IN (VALUES (0, 'authorId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Post.Post_authorId_idx_e47547ed",
+    "label": "Create index Post_authorId_idx_e47547ed on Post",
+    "summary": "Creates index Post_authorId_idx_e47547ed on Post",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Post_authorId_idx_e47547ed",
+        "table": "Post"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Post_authorId_idx_e47547ed\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Post_authorId_idx_e47547ed"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Post_authorId_idx_e47547ed\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Post_authorId_idx_e47547ed\"",
+        "sql": "CREATE INDEX \"Post_authorId_idx_e47547ed\" ON \"Post\" (\"authorId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Post_authorId_idx_e47547ed\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Post_authorId_idx_e47547ed"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Post_authorId_idx_e47547ed\""
+        }
+      },
+      {
+        "description": "verify index \"Post_authorId_idx_e47547ed\" on \"Post\" covers (authorId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Post') WHERE name = 'Post_authorId_idx_e47547ed' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Post_authorId_idx_e47547ed')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Post_authorId_idx_e47547ed') WHERE (seqno, name) IN (VALUES (0, 'authorId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Post.Post_createdAt_idx_9575dbd7",
+    "label": "Create index Post_createdAt_idx_9575dbd7 on Post",
+    "summary": "Creates index Post_createdAt_idx_9575dbd7 on Post",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Post_createdAt_idx_9575dbd7",
+        "table": "Post"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Post_createdAt_idx_9575dbd7\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Post_createdAt_idx_9575dbd7"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Post_createdAt_idx_9575dbd7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Post_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"Post_createdAt_idx_9575dbd7\" ON \"Post\" (\"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Post_createdAt_idx_9575dbd7\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Post_createdAt_idx_9575dbd7"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Post_createdAt_idx_9575dbd7\""
+        }
+      },
+      {
+        "description": "verify index \"Post_createdAt_idx_9575dbd7\" on \"Post\" covers (createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Post') WHERE name = 'Post_createdAt_idx_9575dbd7' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Post_createdAt_idx_9575dbd7')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Post_createdAt_idx_9575dbd7') WHERE (seqno, name) IN (VALUES (0, 'createdAt'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostBookmark.PostBookmark_postId_idx_a7a72715",
+    "label": "Create index PostBookmark_postId_idx_a7a72715 on PostBookmark",
+    "summary": "Creates index PostBookmark_postId_idx_a7a72715 on PostBookmark",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostBookmark_postId_idx_a7a72715",
+        "table": "PostBookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostBookmark_postId_idx_a7a72715\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostBookmark_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostBookmark_postId_idx_a7a72715\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostBookmark_postId_idx_a7a72715\"",
+        "sql": "CREATE INDEX \"PostBookmark_postId_idx_a7a72715\" ON \"PostBookmark\" (\"postId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostBookmark_postId_idx_a7a72715\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostBookmark_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostBookmark_postId_idx_a7a72715\""
+        }
+      },
+      {
+        "description": "verify index \"PostBookmark_postId_idx_a7a72715\" on \"PostBookmark\" covers (postId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostBookmark') WHERE name = 'PostBookmark_postId_idx_a7a72715' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostBookmark_postId_idx_a7a72715')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostBookmark_postId_idx_a7a72715') WHERE (seqno, name) IN (VALUES (0, 'postId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostBookmark.PostBookmark_userId_createdAt_idx_f726f04a",
+    "label": "Create index PostBookmark_userId_createdAt_idx_f726f04a on PostBookmark",
+    "summary": "Creates index PostBookmark_userId_createdAt_idx_f726f04a on PostBookmark",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostBookmark_userId_createdAt_idx_f726f04a",
+        "table": "PostBookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostBookmark_userId_createdAt_idx_f726f04a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostBookmark_userId_createdAt_idx_f726f04a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostBookmark_userId_createdAt_idx_f726f04a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostBookmark_userId_createdAt_idx_f726f04a\"",
+        "sql": "CREATE INDEX \"PostBookmark_userId_createdAt_idx_f726f04a\" ON \"PostBookmark\" (\"userId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostBookmark_userId_createdAt_idx_f726f04a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostBookmark_userId_createdAt_idx_f726f04a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostBookmark_userId_createdAt_idx_f726f04a\""
+        }
+      },
+      {
+        "description": "verify index \"PostBookmark_userId_createdAt_idx_f726f04a\" on \"PostBookmark\" covers (userId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostBookmark') WHERE name = 'PostBookmark_userId_createdAt_idx_f726f04a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostBookmark_userId_createdAt_idx_f726f04a')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('PostBookmark_userId_createdAt_idx_f726f04a') WHERE (seqno, name) IN (VALUES (0, 'userId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.PostBookmark.PostBookmark_userId_idx_a489d58a",
+    "label": "Create index PostBookmark_userId_idx_a489d58a on PostBookmark",
+    "summary": "Creates index PostBookmark_userId_idx_a489d58a on PostBookmark",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostBookmark_userId_idx_a489d58a",
+        "table": "PostBookmark"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostBookmark_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostBookmark_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostBookmark_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostBookmark_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"PostBookmark_userId_idx_a489d58a\" ON \"PostBookmark\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostBookmark_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostBookmark_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostBookmark_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"PostBookmark_userId_idx_a489d58a\" on \"PostBookmark\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostBookmark') WHERE name = 'PostBookmark_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostBookmark_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostBookmark_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostComment.PostComment_authorId_idx_e47547ed",
+    "label": "Create index PostComment_authorId_idx_e47547ed on PostComment",
+    "summary": "Creates index PostComment_authorId_idx_e47547ed on PostComment",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostComment_authorId_idx_e47547ed",
+        "table": "PostComment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostComment_authorId_idx_e47547ed\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_authorId_idx_e47547ed"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostComment_authorId_idx_e47547ed\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostComment_authorId_idx_e47547ed\"",
+        "sql": "CREATE INDEX \"PostComment_authorId_idx_e47547ed\" ON \"PostComment\" (\"authorId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostComment_authorId_idx_e47547ed\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_authorId_idx_e47547ed"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostComment_authorId_idx_e47547ed\""
+        }
+      },
+      {
+        "description": "verify index \"PostComment_authorId_idx_e47547ed\" on \"PostComment\" covers (authorId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostComment') WHERE name = 'PostComment_authorId_idx_e47547ed' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_authorId_idx_e47547ed')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_authorId_idx_e47547ed') WHERE (seqno, name) IN (VALUES (0, 'authorId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostComment.PostComment_parentId_createdAt_idx_d5e7872e",
+    "label": "Create index PostComment_parentId_createdAt_idx_d5e7872e on PostComment",
+    "summary": "Creates index PostComment_parentId_createdAt_idx_d5e7872e on PostComment",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostComment_parentId_createdAt_idx_d5e7872e",
+        "table": "PostComment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostComment_parentId_createdAt_idx_d5e7872e\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_parentId_createdAt_idx_d5e7872e"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostComment_parentId_createdAt_idx_d5e7872e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostComment_parentId_createdAt_idx_d5e7872e\"",
+        "sql": "CREATE INDEX \"PostComment_parentId_createdAt_idx_d5e7872e\" ON \"PostComment\" (\"parentId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostComment_parentId_createdAt_idx_d5e7872e\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_parentId_createdAt_idx_d5e7872e"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostComment_parentId_createdAt_idx_d5e7872e\""
+        }
+      },
+      {
+        "description": "verify index \"PostComment_parentId_createdAt_idx_d5e7872e\" on \"PostComment\" covers (parentId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostComment') WHERE name = 'PostComment_parentId_createdAt_idx_d5e7872e' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_parentId_createdAt_idx_d5e7872e')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_parentId_createdAt_idx_d5e7872e') WHERE (seqno, name) IN (VALUES (0, 'parentId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.PostComment.PostComment_parentId_idx_6a68f597",
+    "label": "Create index PostComment_parentId_idx_6a68f597 on PostComment",
+    "summary": "Creates index PostComment_parentId_idx_6a68f597 on PostComment",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostComment_parentId_idx_6a68f597",
+        "table": "PostComment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostComment_parentId_idx_6a68f597\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_parentId_idx_6a68f597"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostComment_parentId_idx_6a68f597\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostComment_parentId_idx_6a68f597\"",
+        "sql": "CREATE INDEX \"PostComment_parentId_idx_6a68f597\" ON \"PostComment\" (\"parentId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostComment_parentId_idx_6a68f597\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_parentId_idx_6a68f597"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostComment_parentId_idx_6a68f597\""
+        }
+      },
+      {
+        "description": "verify index \"PostComment_parentId_idx_6a68f597\" on \"PostComment\" covers (parentId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostComment') WHERE name = 'PostComment_parentId_idx_6a68f597' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_parentId_idx_6a68f597')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_parentId_idx_6a68f597') WHERE (seqno, name) IN (VALUES (0, 'parentId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostComment.PostComment_postId_createdAt_idx_b244c517",
+    "label": "Create index PostComment_postId_createdAt_idx_b244c517 on PostComment",
+    "summary": "Creates index PostComment_postId_createdAt_idx_b244c517 on PostComment",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostComment_postId_createdAt_idx_b244c517",
+        "table": "PostComment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostComment_postId_createdAt_idx_b244c517\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_postId_createdAt_idx_b244c517"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostComment_postId_createdAt_idx_b244c517\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostComment_postId_createdAt_idx_b244c517\"",
+        "sql": "CREATE INDEX \"PostComment_postId_createdAt_idx_b244c517\" ON \"PostComment\" (\"postId\", \"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostComment_postId_createdAt_idx_b244c517\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_postId_createdAt_idx_b244c517"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostComment_postId_createdAt_idx_b244c517\""
+        }
+      },
+      {
+        "description": "verify index \"PostComment_postId_createdAt_idx_b244c517\" on \"PostComment\" covers (postId, createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostComment') WHERE name = 'PostComment_postId_createdAt_idx_b244c517' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_postId_createdAt_idx_b244c517')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_postId_createdAt_idx_b244c517') WHERE (seqno, name) IN (VALUES (0, 'postId'), (1, 'createdAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.PostComment.PostComment_postId_idx_a7a72715",
+    "label": "Create index PostComment_postId_idx_a7a72715 on PostComment",
+    "summary": "Creates index PostComment_postId_idx_a7a72715 on PostComment",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostComment_postId_idx_a7a72715",
+        "table": "PostComment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostComment_postId_idx_a7a72715\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostComment_postId_idx_a7a72715\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostComment_postId_idx_a7a72715\"",
+        "sql": "CREATE INDEX \"PostComment_postId_idx_a7a72715\" ON \"PostComment\" (\"postId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostComment_postId_idx_a7a72715\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostComment_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostComment_postId_idx_a7a72715\""
+        }
+      },
+      {
+        "description": "verify index \"PostComment_postId_idx_a7a72715\" on \"PostComment\" covers (postId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostComment') WHERE name = 'PostComment_postId_idx_a7a72715' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_postId_idx_a7a72715')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostComment_postId_idx_a7a72715') WHERE (seqno, name) IN (VALUES (0, 'postId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostCommentLike.PostCommentLike_commentId_idx_b5a4f615",
+    "label": "Create index PostCommentLike_commentId_idx_b5a4f615 on PostCommentLike",
+    "summary": "Creates index PostCommentLike_commentId_idx_b5a4f615 on PostCommentLike",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostCommentLike_commentId_idx_b5a4f615",
+        "table": "PostCommentLike"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostCommentLike_commentId_idx_b5a4f615\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostCommentLike_commentId_idx_b5a4f615"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostCommentLike_commentId_idx_b5a4f615\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostCommentLike_commentId_idx_b5a4f615\"",
+        "sql": "CREATE INDEX \"PostCommentLike_commentId_idx_b5a4f615\" ON \"PostCommentLike\" (\"commentId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostCommentLike_commentId_idx_b5a4f615\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostCommentLike_commentId_idx_b5a4f615"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostCommentLike_commentId_idx_b5a4f615\""
+        }
+      },
+      {
+        "description": "verify index \"PostCommentLike_commentId_idx_b5a4f615\" on \"PostCommentLike\" covers (commentId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostCommentLike') WHERE name = 'PostCommentLike_commentId_idx_b5a4f615' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostCommentLike_commentId_idx_b5a4f615')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostCommentLike_commentId_idx_b5a4f615') WHERE (seqno, name) IN (VALUES (0, 'commentId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostCommentLike.PostCommentLike_userId_idx_a489d58a",
+    "label": "Create index PostCommentLike_userId_idx_a489d58a on PostCommentLike",
+    "summary": "Creates index PostCommentLike_userId_idx_a489d58a on PostCommentLike",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostCommentLike_userId_idx_a489d58a",
+        "table": "PostCommentLike"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostCommentLike_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostCommentLike_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostCommentLike_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostCommentLike_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"PostCommentLike_userId_idx_a489d58a\" ON \"PostCommentLike\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostCommentLike_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostCommentLike_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostCommentLike_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"PostCommentLike_userId_idx_a489d58a\" on \"PostCommentLike\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostCommentLike') WHERE name = 'PostCommentLike_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostCommentLike_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostCommentLike_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostLike.PostLike_postId_idx_a7a72715",
+    "label": "Create index PostLike_postId_idx_a7a72715 on PostLike",
+    "summary": "Creates index PostLike_postId_idx_a7a72715 on PostLike",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostLike_postId_idx_a7a72715",
+        "table": "PostLike"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostLike_postId_idx_a7a72715\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostLike_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostLike_postId_idx_a7a72715\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostLike_postId_idx_a7a72715\"",
+        "sql": "CREATE INDEX \"PostLike_postId_idx_a7a72715\" ON \"PostLike\" (\"postId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostLike_postId_idx_a7a72715\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostLike_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostLike_postId_idx_a7a72715\""
+        }
+      },
+      {
+        "description": "verify index \"PostLike_postId_idx_a7a72715\" on \"PostLike\" covers (postId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostLike') WHERE name = 'PostLike_postId_idx_a7a72715' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostLike_postId_idx_a7a72715')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostLike_postId_idx_a7a72715') WHERE (seqno, name) IN (VALUES (0, 'postId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.PostLike.PostLike_userId_idx_a489d58a",
+    "label": "Create index PostLike_userId_idx_a489d58a on PostLike",
+    "summary": "Creates index PostLike_userId_idx_a489d58a on PostLike",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "PostLike_userId_idx_a489d58a",
+        "table": "PostLike"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PostLike_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostLike_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PostLike_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PostLike_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"PostLike_userId_idx_a489d58a\" ON \"PostLike\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PostLike_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "PostLike_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"PostLike_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"PostLike_userId_idx_a489d58a\" on \"PostLike\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('PostLike') WHERE name = 'PostLike_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('PostLike_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('PostLike_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.Story.Story_userId_expiresAt_idx_9721b56d",
+    "label": "Create index Story_userId_expiresAt_idx_9721b56d on Story",
+    "summary": "Creates index Story_userId_expiresAt_idx_9721b56d on Story",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Story_userId_expiresAt_idx_9721b56d",
+        "table": "Story"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Story_userId_expiresAt_idx_9721b56d\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Story_userId_expiresAt_idx_9721b56d"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Story_userId_expiresAt_idx_9721b56d\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Story_userId_expiresAt_idx_9721b56d\"",
+        "sql": "CREATE INDEX \"Story_userId_expiresAt_idx_9721b56d\" ON \"Story\" (\"userId\", \"expiresAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Story_userId_expiresAt_idx_9721b56d\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Story_userId_expiresAt_idx_9721b56d"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Story_userId_expiresAt_idx_9721b56d\""
+        }
+      },
+      {
+        "description": "verify index \"Story_userId_expiresAt_idx_9721b56d\" on \"Story\" covers (userId, expiresAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Story') WHERE name = 'Story_userId_expiresAt_idx_9721b56d' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Story_userId_expiresAt_idx_9721b56d')) = 2 AND (SELECT COUNT(*) FROM pragma_index_info('Story_userId_expiresAt_idx_9721b56d') WHERE (seqno, name) IN (VALUES (0, 'userId'), (1, 'expiresAt'))) = 2"
+      }
+    ]
+  },
+  {
+    "id": "index.Story.Story_userId_idx_a489d58a",
+    "label": "Create index Story_userId_idx_a489d58a on Story",
+    "summary": "Creates index Story_userId_idx_a489d58a on Story",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "Story_userId_idx_a489d58a",
+        "table": "Story"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Story_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Story_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Story_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Story_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"Story_userId_idx_a489d58a\" ON \"Story\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Story_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "Story_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"Story_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"Story_userId_idx_a489d58a\" on \"Story\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('Story') WHERE name = 'Story_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('Story_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('Story_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.StoryView.StoryView_storyId_idx_cd452158",
+    "label": "Create index StoryView_storyId_idx_cd452158 on StoryView",
+    "summary": "Creates index StoryView_storyId_idx_cd452158 on StoryView",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "StoryView_storyId_idx_cd452158",
+        "table": "StoryView"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"StoryView_storyId_idx_cd452158\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "StoryView_storyId_idx_cd452158"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"StoryView_storyId_idx_cd452158\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"StoryView_storyId_idx_cd452158\"",
+        "sql": "CREATE INDEX \"StoryView_storyId_idx_cd452158\" ON \"StoryView\" (\"storyId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"StoryView_storyId_idx_cd452158\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "StoryView_storyId_idx_cd452158"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"StoryView_storyId_idx_cd452158\""
+        }
+      },
+      {
+        "description": "verify index \"StoryView_storyId_idx_cd452158\" on \"StoryView\" covers (storyId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('StoryView') WHERE name = 'StoryView_storyId_idx_cd452158' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('StoryView_storyId_idx_cd452158')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('StoryView_storyId_idx_cd452158') WHERE (seqno, name) IN (VALUES (0, 'storyId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.StoryView.StoryView_userId_idx_a489d58a",
+    "label": "Create index StoryView_userId_idx_a489d58a on StoryView",
+    "summary": "Creates index StoryView_userId_idx_a489d58a on StoryView",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "StoryView_userId_idx_a489d58a",
+        "table": "StoryView"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"StoryView_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "StoryView_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"StoryView_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"StoryView_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"StoryView_userId_idx_a489d58a\" ON \"StoryView\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"StoryView_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "StoryView_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"StoryView_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"StoryView_userId_idx_a489d58a\" on \"StoryView\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('StoryView') WHERE name = 'StoryView_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('StoryView_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('StoryView_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.User.User_createdAt_idx_9575dbd7",
+    "label": "Create index User_createdAt_idx_9575dbd7 on User",
+    "summary": "Creates index User_createdAt_idx_9575dbd7 on User",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "User_createdAt_idx_9575dbd7",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"User_createdAt_idx_9575dbd7\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "User_createdAt_idx_9575dbd7"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"User_createdAt_idx_9575dbd7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"User_createdAt_idx_9575dbd7\"",
+        "sql": "CREATE INDEX \"User_createdAt_idx_9575dbd7\" ON \"User\" (\"createdAt\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"User_createdAt_idx_9575dbd7\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "User_createdAt_idx_9575dbd7"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"User_createdAt_idx_9575dbd7\""
+        }
+      },
+      {
+        "description": "verify index \"User_createdAt_idx_9575dbd7\" on \"User\" covers (createdAt)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('User') WHERE name = 'User_createdAt_idx_9575dbd7' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('User_createdAt_idx_9575dbd7')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('User_createdAt_idx_9575dbd7') WHERE (seqno, name) IN (VALUES (0, 'createdAt'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.VideoView.VideoView_postId_idx_a7a72715",
+    "label": "Create index VideoView_postId_idx_a7a72715 on VideoView",
+    "summary": "Creates index VideoView_postId_idx_a7a72715 on VideoView",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "VideoView_postId_idx_a7a72715",
+        "table": "VideoView"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"VideoView_postId_idx_a7a72715\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "VideoView_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"VideoView_postId_idx_a7a72715\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"VideoView_postId_idx_a7a72715\"",
+        "sql": "CREATE INDEX \"VideoView_postId_idx_a7a72715\" ON \"VideoView\" (\"postId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"VideoView_postId_idx_a7a72715\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "VideoView_postId_idx_a7a72715"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"VideoView_postId_idx_a7a72715\""
+        }
+      },
+      {
+        "description": "verify index \"VideoView_postId_idx_a7a72715\" on \"VideoView\" covers (postId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('VideoView') WHERE name = 'VideoView_postId_idx_a7a72715' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('VideoView_postId_idx_a7a72715')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('VideoView_postId_idx_a7a72715') WHERE (seqno, name) IN (VALUES (0, 'postId'))) = 1"
+      }
+    ]
+  },
+  {
+    "id": "index.VideoView.VideoView_userId_idx_a489d58a",
+    "label": "Create index VideoView_userId_idx_a489d58a on VideoView",
+    "summary": "Creates index VideoView_userId_idx_a489d58a on VideoView",
+    "operationClass": "additive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "index",
+        "name": "VideoView_userId_idx_a489d58a",
+        "table": "VideoView"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"VideoView_userId_idx_a489d58a\" is missing",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "VideoView_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"VideoView_userId_idx_a489d58a\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"VideoView_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"VideoView_userId_idx_a489d58a\" ON \"VideoView\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"VideoView_userId_idx_a489d58a\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "index",
+          "VideoView_userId_idx_a489d58a"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "index \"VideoView_userId_idx_a489d58a\""
+        }
+      },
+      {
+        "description": "verify index \"VideoView_userId_idx_a489d58a\" on \"VideoView\" covers (userId)",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_index_list('VideoView') WHERE name = 'VideoView_userId_idx_a489d58a' AND \"unique\" = 0) AND (SELECT COUNT(*) FROM pragma_index_info('VideoView_userId_idx_a489d58a')) = 1 AND (SELECT COUNT(*) FROM pragma_index_info('VideoView_userId_idx_a489d58a') WHERE (seqno, name) IN (VALUES (0, 'userId'))) = 1"
+      }
+    ]
+  }
+]

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/prisma/db";
+import { getMessagePreview } from "@/lib/shared-post-message";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,10 @@ export async function GET() {
     if (!other) return null;
     const messages = await db.orm.Message.where({ conversationId: conversation.id }).orderBy((message) => message.createdAt.desc()).all();
     const latest = messages[0] ?? null;
-    const unreadCount = messages.filter((message) => message.senderId !== session.userId && !message.readAt).length;
-    return { id: conversation.id, otherUser: { id: other.id, fullName: other.fullName, username: other.username, avatarUrl: other.avatarUrl }, lastMessage: latest ? { body: latest.body, createdAt: latest.createdAt, senderId: latest.senderId } : null, unreadCount, updatedAt: conversation.updatedAt };
+    const unreadMessages = messages
+      .filter((message) => message.senderId !== session.userId && !message.readAt)
+      .map(({ id, body, createdAt, senderId }) => ({ id, body: getMessagePreview(body), createdAt, senderId }));
+    return { id: conversation.id, otherUser: { id: other.id, fullName: other.fullName, username: other.username, avatarUrl: other.avatarUrl }, lastMessage: latest ? { id: latest.id, body: getMessagePreview(latest.body), createdAt: latest.createdAt, senderId: latest.senderId } : null, unreadCount: unreadMessages.length, unreadMessages, updatedAt: conversation.updatedAt };
   }));
   return NextResponse.json({ conversations: entries.filter((entry) => entry !== null).sort((a, b) => new Date(b!.updatedAt).getTime() - new Date(a!.updatedAt).getTime()) });
 }

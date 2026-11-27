@@ -1,0 +1,49 @@
+[
+  {
+    "id": "dropTable.PasswordResetToken",
+    "label": "Drop table \"PasswordResetToken\"",
+    "summary": "Drops table PasswordResetToken which is not in the contract",
+    "operationClass": "destructive",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "PasswordResetToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PasswordResetToken\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PasswordResetToken"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PasswordResetToken\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"PasswordResetToken\"",
+        "sql": "DROP TABLE \"PasswordResetToken\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PasswordResetToken\" is gone",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "PasswordResetToken"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PasswordResetToken\""
+        }
+      }
+    ]
+  }
+]

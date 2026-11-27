@@ -42,12 +42,13 @@ export default async function SettingsPage() {
         </header>
         <div className="space-y-1 px-4 py-3">
           <SettingsRow href="/settings/edit-profile" icon="profile">Edit Profile</SettingsRow>
+          <div className="px-3 pb-1 pt-5"><p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Preferences</p></div>
           <SettingsRow href="/notifications" icon="notifications">Notifications</SettingsRow>
+          <ThemePreference initialTheme={user?.theme ?? "light"} />
           <SettingsRow href="/saved" icon="saved">Saved posts</SettingsRow>
-          <div className="border-y border-zinc-100 py-1 dark:border-zinc-800"><ThemePreference initialTheme={user?.theme ?? "light"} /></div>
-          <div className="px-3 pb-1 pt-4"><p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Resources</p></div>
-          <div className="flex min-h-14 items-center gap-3 rounded-xl px-3 py-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"><SettingsIcon name="language" /></span><div><p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">Language</p><p className="text-xs text-zinc-500 dark:text-zinc-400">English · currently supported</p></div></div>
-          <a href="mailto:support@socia.app" className="flex min-h-14 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"><SettingsIcon name="help" /></span><span className="flex-1">Help &amp; Support</span><span aria-hidden="true" className="text-lg text-zinc-400">›</span></a>
+          <div className="px-3 pb-1 pt-5"><p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Resources</p></div>
+          <a href="mailto:support@socia.app" className="flex min-h-14 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"><SettingsIcon name="help" /></span><span className="flex-1">Help &amp; Support</span><span aria-hidden="true" className="text-lg text-zinc-400">›</span></a>
+          <div className="flex min-h-14 items-center gap-3 rounded-xl px-3 py-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"><SettingsIcon name="language" /></span><span className="flex-1 text-sm font-medium text-zinc-800 dark:text-zinc-100">Languages</span><span className="text-sm text-zinc-700 dark:text-zinc-200">English</span><span aria-hidden="true" className="text-zinc-500">⌄</span></div>
           <LogoutButton appearance="row" />
         </div>
       </section>

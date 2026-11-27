@@ -1,10 +1,5 @@
-import type { Metadata } from "next";
-import { ResetPasswordContent } from "./ResetPasswordForm";
-
-export const metadata: Metadata = {
-  referrer: "no-referrer",
-};
+import ResetPasswordForm from "./ResetPasswordForm";
 
 export default function ResetPasswordPage() {
-  return <ResetPasswordContent />;
+  return <ResetPasswordForm />;
 }

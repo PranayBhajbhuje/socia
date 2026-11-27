@@ -1,65 +1,89 @@
-import { createHash, randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
-import { db } from "@/prisma/db";
 import { checkAuthRateLimit } from "@/lib/rate-limit";
+import { createPasswordResetToken, getLocalDevelopmentOrigin, passwordResetEmailConfig } from "@/lib/password-reset";
+import { db } from "@/prisma/db";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const GENERIC_MESSAGE = "If an account exists for that email, password reset instructions will be sent.";
+const GENERIC_MESSAGE = "If an account exists and email delivery is available, password reset instructions will be sent.";
+const UNAVAILABLE_MESSAGE = "Password reset email is not configured in this environment. Please contact the administrator.";
+const TOKEN_LIFETIME_MS = 5 * 60 * 1000;
+
+function genericResponse(deliveryAvailable = true, developmentResetUrl?: string) {
+  return NextResponse.json({ message: GENERIC_MESSAGE, deliveryAvailable, ...(developmentResetUrl ? { developmentResetUrl } : {}) });
+}
+
+async function storeResetToken(userId: string, tokenHash: string, now: Date) {
+  await db.transaction(async (tx) => {
+    const previousTokens = await tx.orm.PasswordResetToken.where({ userId }).all();
+    for (const previous of previousTokens) {
+      if (!previous.usedAt) await tx.orm.PasswordResetToken.where({ id: previous.id }).update({ usedAt: now });
+    }
+    await tx.orm.PasswordResetToken.create({
+      userId,
+      tokenHash,
+      expiresAt: new Date(now.getTime() + TOKEN_LIFETIME_MS),
+      usedAt: null,
+    });
+  });
+}
 
 export async function POST(request: Request) {
   let body: { email?: unknown };
-  try { body = await request.json(); } catch { return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 }); }
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-  if (!EMAIL_PATTERN.test(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
-  if (!(await checkAuthRateLimit(request, "password-reset-request", email))) {
-    return NextResponse.json({ message: GENERIC_MESSAGE }, { status: 200 });
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  const isProduction = process.env.NODE_ENV === "production";
-  if (isProduction && (!apiKey || !from || !process.env.APP_URL?.startsWith("https://"))) {
-    console.error("Password reset delivery is not configured for production.");
-    return NextResponse.json({ message: GENERIC_MESSAGE });
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  if (!EMAIL_PATTERN.test(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+  const localOrigin = getLocalDevelopmentOrigin(request.url);
+  if (!localOrigin && !(await checkAuthRateLimit(request, "password-reset-request", email))) return genericResponse();
+
+  const config = passwordResetEmailConfig();
+  if (!config) {
+    if (!localOrigin) return NextResponse.json({ message: UNAVAILABLE_MESSAGE, deliveryAvailable: false });
+
+    const user = await db.orm.User.where({ email }).first();
+    if (!user) return genericResponse(false);
+
+    const { token, tokenHash } = createPasswordResetToken();
+    await storeResetToken(user.id, tokenHash, new Date());
+    const resetUrl = new URL("/reset-password", localOrigin);
+    resetUrl.searchParams.set("token", token);
+    return NextResponse.json({ message: UNAVAILABLE_MESSAGE, deliveryAvailable: false, developmentResetUrl: resetUrl.toString() });
   }
 
   const user = await db.orm.User.where({ email }).first();
-  if (!user) return NextResponse.json({ message: GENERIC_MESSAGE });
+  if (!user) return genericResponse();
 
-  const rawToken = randomBytes(32).toString("hex");
-  const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+  const { token, tokenHash } = createPasswordResetToken();
   const now = new Date();
-  const priorTokens = await db.orm.PasswordResetToken.where({ userId: user.id }).all();
-  await Promise.all(priorTokens.filter((token) => !token.usedAt).map((token) => db.orm.PasswordResetToken.where({ id: token.id }).update({ usedAt: now })));
-  await db.orm.PasswordResetToken.create({ userId: user.id, tokenHash, expiresAt: new Date(now.getTime() + 30 * 60 * 1000), usedAt: null });
+  await storeResetToken(user.id, tokenHash, now);
 
-  const baseUrl = process.env.APP_URL || new URL(request.url).origin;
-  const resetUrl = `${baseUrl.replace(/\/$/, "")}/reset-password?token=${rawToken}`;
-  if (apiKey && from) {
-    try {
-      const mail = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to: [user.email], subject: "Reset your Socia password", text: `Use this link within 30 minutes to reset your Socia password: ${resetUrl}\n\nIf you did not request this, you can ignore this email.` }),
-      });
-      if (!mail.ok) {
-        console.error("Password reset email delivery failed with status", mail.status);
-        await db.orm.PasswordResetToken.where({ tokenHash }).update({ usedAt: new Date() });
-        return NextResponse.json({ message: GENERIC_MESSAGE });
-      }
-    } catch (error) {
-      console.error("Password reset email delivery failed", error instanceof Error ? error.message : "unknown error");
-      await db.orm.PasswordResetToken.where({ tokenHash }).update({ usedAt: new Date() });
-      return NextResponse.json({ message: GENERIC_MESSAGE });
-    }
-  } else if (process.env.NODE_ENV !== "production") {
-    console.info("Development password reset link:", resetUrl);
-  } else {
-    console.error("Password reset email is unavailable: configure RESEND_API_KEY and EMAIL_FROM.");
+  const resetUrl = new URL("/reset-password", config.appUrl);
+  resetUrl.searchParams.set("token", token);
+  let delivered = false;
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${config.apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: config.from,
+        to: [user.email],
+        subject: "Reset your Socia password",
+        text: `Use this link within 5 minutes to reset your Socia password: ${resetUrl}\n\nIf you did not request this, you can ignore this email.`,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) console.error("Password reset email delivery failed with HTTP status", response.status);
+    else delivered = true;
+  } catch {
+    console.error("Password reset email delivery failed due to a provider or network error.");
   }
 
-  return NextResponse.json({
-    message: GENERIC_MESSAGE,
-    ...(!isProduction && !(apiKey && from) ? { developmentResetUrl: resetUrl } : {}),
-  });
+  if (!delivered) {
+    await db.orm.PasswordResetToken.where({ tokenHash }).update({ usedAt: new Date() });
+  }
+  return genericResponse();
 }

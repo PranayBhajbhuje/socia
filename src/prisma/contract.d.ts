@@ -16,7 +16,7 @@ import type {
 } from '@prisma/orm-sqlite/contract-types';
 
 export type StorageHash =
-  StorageHashBase<'566bd2b5504d0aa94b2daac235cae299240dcbb6091045174285d2a3cc48723a'>;
+  StorageHashBase<'d78090a5699cd3896f7f197bfef1ece80ad68dec127e638c45917724c71dc3e7'>;
 export type ExecutionHash =
   ExecutionHashBase<'6f681a02140854a00197050b6c97a6912b344a0a84a53df2da6f09548a43c502'>;
 export type ProfileHash =
@@ -233,6 +233,7 @@ export namespace Models {
     followerId: FieldOutputTypes['__unbound__']['Follow']['followerId'];
     followingId: FieldOutputTypes['__unbound__']['Follow']['followingId'];
     id: FieldOutputTypes['__unbound__']['Follow']['id'];
+    status: FieldOutputTypes['__unbound__']['Follow']['status'];
     follower: User;
     following: User;
     readonly [RelationKeys]?: 'follower' | 'following';
@@ -277,7 +278,8 @@ export namespace Models {
     tokenHash: FieldOutputTypes['__unbound__']['PasswordResetToken']['tokenHash'];
     usedAt: FieldOutputTypes['__unbound__']['PasswordResetToken']['usedAt'];
     userId: FieldOutputTypes['__unbound__']['PasswordResetToken']['userId'];
-    readonly [RelationKeys]?: never;
+    user: User;
+    readonly [RelationKeys]?: 'user';
   };
   export type Post = {
     authorId: FieldOutputTypes['__unbound__']['Post']['authorId'];
@@ -291,8 +293,10 @@ export namespace Models {
     bookmarks: PostBookmark[];
     comments: PostComment[];
     likes: PostLike[];
+    stories: Story[];
     videoViews: VideoView[];
-    readonly [RelationKeys]?: 'author' | 'bookmarks' | 'comments' | 'likes' | 'videoViews';
+    readonly [RelationKeys]?:
+      'author' | 'bookmarks' | 'comments' | 'likes' | 'stories' | 'videoViews';
   };
   export type PostBookmark = {
     createdAt: FieldOutputTypes['__unbound__']['PostBookmark']['createdAt'];
@@ -341,10 +345,12 @@ export namespace Models {
     expiresAt: FieldOutputTypes['__unbound__']['Story']['expiresAt'];
     id: FieldOutputTypes['__unbound__']['Story']['id'];
     mediaUrl: FieldOutputTypes['__unbound__']['Story']['mediaUrl'];
+    postId: FieldOutputTypes['__unbound__']['Story']['postId'];
     userId: FieldOutputTypes['__unbound__']['Story']['userId'];
+    post: Post | null;
     user: User;
     views: StoryView[];
-    readonly [RelationKeys]?: 'user' | 'views';
+    readonly [RelationKeys]?: 'post' | 'user' | 'views';
   };
   export type StoryView = {
     id: FieldOutputTypes['__unbound__']['StoryView']['id'];
@@ -377,6 +383,7 @@ export namespace Models {
     likes: PostLike[];
     messageReactions: MessageReaction[];
     notifications: Notification[];
+    passwordResetTokens: PasswordResetToken[];
     posts: Post[];
     stories: Story[];
     storyViews: StoryView[];
@@ -391,6 +398,7 @@ export namespace Models {
       | 'likes'
       | 'messageReactions'
       | 'notifications'
+      | 'passwordResetTokens'
       | 'posts'
       | 'stories'
       | 'storyViews'
@@ -548,6 +556,16 @@ type ContractBase = Omit<
                   readonly dataType: 'sqlite/text';
                   readonly codecId: 'sqlite/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'sqlite/text';
+                  readonly codecId: 'sqlite/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'sqlite/text@1', 'accepted'>;
+                  };
                   readonly many: false;
                 };
               };
@@ -902,8 +920,27 @@ type ContractBase = Omit<
                   readonly columns: readonly ['userId', 'createdAt'];
                   readonly unique: false;
                 },
+                {
+                  readonly name: 'PasswordResetToken_userId_idx_a489d58a';
+                  readonly prefix: 'PasswordResetToken_userId_idx';
+                  readonly columns: readonly ['userId'];
+                  readonly unique: false;
+                },
               ];
-              foreignKeys: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: '__unbound__' & NamespaceId;
+                    readonly tableName: 'PasswordResetToken';
+                    readonly columns: readonly ['userId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: '__unbound__' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly Post: {
               columns: {
@@ -1350,7 +1387,13 @@ type ContractBase = Omit<
                 readonly mediaUrl: {
                   readonly dataType: 'sqlite/text';
                   readonly codecId: 'sqlite/text@1';
-                  readonly nullable: false;
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly postId: {
+                  readonly dataType: 'sqlite/text';
+                  readonly codecId: 'sqlite/text@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly userId: {
@@ -1363,6 +1406,12 @@ type ContractBase = Omit<
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
               indexes: readonly [
+                {
+                  readonly name: 'Story_postId_idx_a7a72715';
+                  readonly prefix: 'Story_postId_idx';
+                  readonly columns: readonly ['postId'];
+                  readonly unique: false;
+                },
                 {
                   readonly name: 'Story_userId_expiresAt_idx_9721b56d';
                   readonly prefix: 'Story_userId_expiresAt_idx';
@@ -1386,6 +1435,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: '__unbound__' & NamespaceId;
                     readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: '__unbound__' & NamespaceId;
+                    readonly tableName: 'Story';
+                    readonly columns: readonly ['postId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: '__unbound__' & NamespaceId;
+                    readonly tableName: 'Post';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1796,6 +1857,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sqlite/text@1' };
               };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sqlite/text@1' };
+              };
             };
             readonly relations: {
               readonly follower: {
@@ -1831,6 +1896,7 @@ type ContractBase = Omit<
                 readonly followerId: { readonly column: 'followerId' };
                 readonly followingId: { readonly column: 'followingId' };
                 readonly id: { readonly column: 'id' };
+                readonly status: { readonly column: 'status' };
               };
             };
           };
@@ -2058,7 +2124,20 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sqlite/text@1' };
               };
             };
-            readonly relations: Record<string, never>;
+            readonly relations: {
+              readonly user: {
+                readonly to: {
+                  readonly namespace: '__unbound__' & NamespaceId;
+                  readonly model: 'User';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['userId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
             readonly storage: {
               readonly table: 'PasswordResetToken';
               readonly namespaceId: '__unbound__';
@@ -2142,6 +2221,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: '__unbound__' & NamespaceId;
                   readonly model: 'PostLike';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['postId'];
+                };
+              };
+              readonly stories: {
+                readonly to: {
+                  readonly namespace: '__unbound__' & NamespaceId;
+                  readonly model: 'Story';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -2462,7 +2552,11 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sqlite/text@1' };
               };
               readonly mediaUrl: {
-                readonly nullable: false;
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sqlite/text@1' };
+              };
+              readonly postId: {
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sqlite/text@1' };
               };
               readonly userId: {
@@ -2471,6 +2565,18 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly post: {
+                readonly to: {
+                  readonly namespace: '__unbound__' & NamespaceId;
+                  readonly model: 'Post';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['postId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly user: {
                 readonly to: {
                   readonly namespace: '__unbound__' & NamespaceId;
@@ -2504,6 +2610,7 @@ type ContractBase = Omit<
                 readonly expiresAt: { readonly column: 'expiresAt' };
                 readonly id: { readonly column: 'id' };
                 readonly mediaUrl: { readonly column: 'mediaUrl' };
+                readonly postId: { readonly column: 'postId' };
                 readonly userId: { readonly column: 'userId' };
               };
             };
@@ -2708,6 +2815,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: '__unbound__' & NamespaceId;
                   readonly model: 'Notification';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['userId'];
+                };
+              };
+              readonly passwordResetTokens: {
+                readonly to: {
+                  readonly namespace: '__unbound__' & NamespaceId;
+                  readonly model: 'PasswordResetToken';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {

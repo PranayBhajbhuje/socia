@@ -49,6 +49,7 @@ node_modules/
 dist/
 .env
 /public/uploads/avatars/
+/public/uploads/posts/
 
 # local AI chat export (contains private account metadata)
 /Socia App Prisma Schema and Seed Script - Google Gemini.html

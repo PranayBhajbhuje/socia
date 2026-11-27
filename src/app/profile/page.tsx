@@ -4,11 +4,12 @@ import { getSessionUser } from "@/lib/auth";
 import { db } from "@/prisma/db";
 import BottomNav from "@/components/BottomNav";
 import FollowButton from "@/components/FollowButton";
-import DeletePostButton from "@/components/DeletePostButton";
+import PostOptionsMenu from "@/components/PostOptionsMenu";
 import StartConversationButton from "@/components/StartConversationButton";
 import SettingsLink from "@/components/SettingsLink";
 import VideoMedia from "@/components/VideoMedia";
 import UserAvatar from "@/components/UserAvatar";
+import SharePostButton, { ShareIcon } from "@/components/SharePostButton";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +34,8 @@ export default async function ProfilePage({
 
   const [userPosts, following, followers, relationship] = await Promise.all([
     db.orm.Post.where({ authorId: user.id }).orderBy((post) => post.createdAt.desc()).all(),
-    db.orm.Follow.where({ followerId: user.id }).all(),
-    db.orm.Follow.where({ followingId: user.id }).all(),
+    db.orm.Follow.where({ followerId: user.id, status: "accepted" }).all(),
+    db.orm.Follow.where({ followingId: user.id, status: "accepted" }).all(),
     isOwnProfile ? Promise.resolve(null) : db.orm.Follow.where({ followerId: session.userId, followingId: user.id }).first(),
   ]);
   const tab = ["post", "video", "tag"].includes(requestedTab ?? "") ? requestedTab! : "post";
@@ -50,7 +51,7 @@ export default async function ProfilePage({
         <div>
           <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
             <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{isOwnProfile ? "Profile" : `@${user.username}`}</h1>
-            {isOwnProfile ? <SettingsLink /> : <div className="flex items-center gap-2"><StartConversationButton userId={user.id} /><FollowButton userId={user.id} initialFollowing={Boolean(relationship)} /></div>}
+            {isOwnProfile ? <SettingsLink /> : <div className="flex items-center gap-2"><StartConversationButton userId={user.id} /><FollowButton userId={user.id} initialStatus={relationship?.status === "accepted" || relationship?.status === "pending" ? relationship.status : null} /></div>}
           </header>
 
           <section className="mx-4 my-4 rounded-3xl border border-zinc-100 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
@@ -98,7 +99,12 @@ export default async function ProfilePage({
                     {post.mediaUrl && <VideoMedia src={post.mediaUrl} title={post.content ?? `Video by ${user.fullName}`} className="aspect-[4/5] w-full bg-black object-cover" />}
                     <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-1 text-[11px] font-medium text-white">◉ {videoViewCounts.get(post.id) ?? 0}</span>
                     {post.content && <p className="line-clamp-2 p-2 text-xs text-white">{post.content}</p>}
-                    {isOwnProfile && <DeletePostButton postId={post.id} type="video" />}
+                    <div className="absolute right-1 top-1 z-10 flex items-center gap-1 rounded-full bg-black/50">
+                      <SharePostButton post={{ id: post.id, type: post.type, authorName: user.fullName }} className="flex h-9 w-9 items-center justify-center rounded-full text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" ariaLabel="Share video post">
+                        <ShareIcon className="h-4 w-4" />
+                      </SharePostButton>
+                      {isOwnProfile && <PostOptionsMenu postId={post.id} type={post.type} content={post.content} />}
+                    </div>
                   </article>
                 ))}
               </div>
@@ -106,8 +112,7 @@ export default async function ProfilePage({
               <div className="space-y-3">
                 {userPosts.map((post) => (
                   <article key={post.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-neutral-950">
-                    <div className="flex items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-400"><span className="rounded-full bg-zinc-100 px-2 py-1 uppercase dark:bg-zinc-900">{post.type}</span><time dateTime={post.createdAt.toISOString()}>{post.createdAt.toLocaleDateString()}</time></div>
-                    {isOwnProfile && <DeletePostButton postId={post.id} type={post.type} />}
+                    <div className="flex items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-400"><span className="rounded-full bg-zinc-100 px-2 py-1 uppercase dark:bg-zinc-900">{post.type}</span><div className="flex items-center gap-2"><time dateTime={post.createdAt.toISOString()}>{post.createdAt.toLocaleDateString()}</time><SharePostButton post={{ id: post.id, type: post.type, authorName: user.fullName }} className="rounded-full p-2 text-zinc-700 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-300 dark:hover:bg-zinc-800" ariaLabel={`Share ${post.type} post`}><ShareIcon className="h-4 w-4" /></SharePostButton>{isOwnProfile && <PostOptionsMenu postId={post.id} type={post.type} content={post.content} />}</div></div>
                     {post.content && <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-zinc-900 dark:text-zinc-100">{post.content}</p>}
                     {post.type === "video" && post.mediaUrl && <VideoMedia src={post.mediaUrl} title={post.content ?? `Video by ${user.fullName}`} className="mt-3 max-h-80 w-full rounded-xl bg-black" />}
                     {post.type === "image" && post.mediaUrl && <img src={post.mediaUrl} alt={post.content ?? "Post image"} className="mt-3 max-h-80 w-full rounded-xl object-cover" />}

@@ -12,7 +12,7 @@ export async function GET() {
     db.orm.User.all(),
     db.orm.Follow.where({ followerId: session.userId }).all(),
   ]);
-  const followedIds = new Set(follows.map((follow) => follow.followingId));
+  const followByUserId = new Map(follows.map((follow) => [follow.followingId, follow]));
 
   return NextResponse.json({
     users: users
@@ -21,8 +21,10 @@ export async function GET() {
         id: user.id,
         fullName: user.fullName,
         username: user.username,
+        avatarUrl: user.avatarUrl,
         bio: user.bio,
-        isFollowing: followedIds.has(user.id),
+        isFollowing: followByUserId.get(user.id)?.status === "accepted",
+        isRequested: followByUserId.get(user.id)?.status === "pending",
       })),
   });
 }

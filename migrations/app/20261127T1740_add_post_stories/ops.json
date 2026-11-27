@@ -1,0 +1,125 @@
+[
+  {
+    "id": "recreateTable.Story",
+    "label": "Recreate table Story",
+    "summary": "Recreates table Story to apply schema changes: database/Story/column:mediaUrl; database/Story/foreign-key:postId->.Post(id); database/Story/column:postId",
+    "operationClass": "widening",
+    "target": {
+      "id": "sqlite",
+      "details": {
+        "objectType": "table",
+        "name": "Story"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Story\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Story"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Story\""
+        }
+      },
+      {
+        "description": "ensure temp table \"_prisma_new_Story\" does not exist",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "_prisma_new_Story"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "temp table \"_prisma_new_Story\""
+        }
+      },
+      {
+        "description": "ensure table \"Story\" has exactly the columns the rebuild copies or leaves out (caption, createdAt, expiresAt, id, mediaUrl, userId)",
+        "sql": "SELECT (SELECT COUNT(*) FROM pragma_table_info('Story')) = 6 AND (SELECT COUNT(*) FROM pragma_table_info('Story') WHERE name IN ('caption', 'createdAt', 'expiresAt', 'id', 'mediaUrl', 'userId')) = 6"
+      }
+    ],
+    "execute": [
+      {
+        "description": "create new table \"_prisma_new_Story\" with desired schema",
+        "sql": "CREATE TABLE \"_prisma_new_Story\" (\n  \"caption\" TEXT,\n  \"createdAt\" TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) NOT NULL,\n  \"expiresAt\" TEXT NOT NULL,\n  \"id\" TEXT NOT NULL,\n  \"mediaUrl\" TEXT,\n  \"postId\" TEXT,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"postId\") REFERENCES \"Post\" (\"id\") ON DELETE CASCADE\n)"
+      },
+      {
+        "description": "copy data from \"Story\" to \"_prisma_new_Story\"",
+        "sql": "INSERT INTO \"_prisma_new_Story\" (\"caption\", \"createdAt\", \"expiresAt\", \"id\", \"mediaUrl\", \"userId\") SELECT \"caption\", \"createdAt\", \"expiresAt\", \"id\", \"mediaUrl\", \"userId\" FROM \"Story\""
+      },
+      {
+        "description": "drop old table \"Story\"",
+        "sql": "DROP TABLE \"Story\""
+      },
+      {
+        "description": "rename \"_prisma_new_Story\" to \"Story\"",
+        "sql": "ALTER TABLE \"_prisma_new_Story\" RENAME TO \"Story\""
+      },
+      {
+        "description": "recreate index \"Story_postId_idx_a7a72715\" on \"Story\"",
+        "sql": "CREATE INDEX \"Story_postId_idx_a7a72715\" ON \"Story\" (\"postId\")"
+      },
+      {
+        "description": "recreate index \"Story_userId_expiresAt_idx_9721b56d\" on \"Story\"",
+        "sql": "CREATE INDEX \"Story_userId_expiresAt_idx_9721b56d\" ON \"Story\" (\"userId\", \"expiresAt\")"
+      },
+      {
+        "description": "recreate index \"Story_userId_idx_a489d58a\" on \"Story\"",
+        "sql": "CREATE INDEX \"Story_userId_idx_a489d58a\" ON \"Story\" (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Story\" exists",
+        "sql": "SELECT COUNT(*) > 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "Story"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Story\""
+        }
+      },
+      {
+        "description": "verify temp table \"_prisma_new_Story\" is gone",
+        "sql": "SELECT COUNT(*) = 0 AS \"result\" FROM \"sqlite_master\" WHERE (\"type\" = ?1 AND \"name\" = ?2)",
+        "params": [
+          "table",
+          "_prisma_new_Story"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "temp table \"_prisma_new_Story\""
+        }
+      },
+      {
+        "description": "verify \"Story\" is stored as the rebuilt table",
+        "sql": "SELECT (SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'Story') = 'CREATE TABLE \"Story\" (\n  \"caption\" TEXT,\n  \"createdAt\" TEXT DEFAULT (strftime(''%Y-%m-%dT%H:%M:%fZ'',''now'')) NOT NULL,\n  \"expiresAt\" TEXT NOT NULL,\n  \"id\" TEXT NOT NULL,\n  \"mediaUrl\" TEXT,\n  \"postId\" TEXT,\n  \"userId\" TEXT NOT NULL,\n  PRIMARY KEY (\"id\"),\n  FOREIGN KEY (\"userId\") REFERENCES \"User\" (\"id\") ON DELETE CASCADE,\n  FOREIGN KEY (\"postId\") REFERENCES \"Post\" (\"id\") ON DELETE CASCADE\n)'"
+      },
+      {
+        "description": "verify \"mediaUrl\" nullability on \"Story\"",
+        "sql": "SELECT COUNT(*) > 0 FROM pragma_table_info('Story') WHERE name = 'mediaUrl' AND \"notnull\" = 0"
+      },
+      {
+        "description": "verify \"postId\" nullability on \"Story\"",
+        "sql": "SELECT COUNT(*) > 0 FROM pragma_table_info('Story') WHERE name = 'postId' AND \"notnull\" = 0"
+      },
+      {
+        "description": "verify foreign key (userId) → User(id) on \"Story\"",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_foreign_key_list('Story') f WHERE f.\"table\" = 'User' AND f.on_delete = 'CASCADE' AND f.on_update = 'NO ACTION' GROUP BY f.id HAVING COUNT(*) = 1 AND SUM(CASE WHEN (f.\"from\", f.\"to\") IN (('userId', 'id')) THEN 1 ELSE 0 END) = 1)"
+      },
+      {
+        "description": "verify foreign key (postId) → Post(id) on \"Story\"",
+        "sql": "SELECT EXISTS (SELECT 1 FROM pragma_foreign_key_list('Story') f WHERE f.\"table\" = 'Post' AND f.on_delete = 'CASCADE' AND f.on_update = 'NO ACTION' GROUP BY f.id HAVING COUNT(*) = 1 AND SUM(CASE WHEN (f.\"from\", f.\"to\") IN (('postId', 'id')) THEN 1 ELSE 0 END) = 1)"
+      },
+      {
+        "description": "verify \"Story\" has exactly 2 foreign keys",
+        "sql": "SELECT (SELECT COUNT(DISTINCT id) FROM pragma_foreign_key_list('Story')) = 2"
+      }
+    ]
+  }
+]

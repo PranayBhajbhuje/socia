@@ -27,6 +27,7 @@ model User {
   actedNotifications Notification[] @relation("NotificationActor")
   videoViews VideoView[]
   messageReactions MessageReaction[]
+  passwordResetTokens PasswordResetToken[]
 
   @@index([createdAt])
 }
@@ -45,6 +46,7 @@ model Post {
   bookmarks PostBookmark[]
   comments PostComment[]
   videoViews VideoView[]
+  stories Story[]
 
   @@index([authorId, createdAt])
   @@index([createdAt])
@@ -68,6 +70,7 @@ model Follow {
   id          String   @id @onCreate(cuid(2))
   followerId  String
   followingId String
+  status      String   @default("accepted")
   createdAt   DateTime @default(now())
 
   follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
@@ -107,6 +110,12 @@ model Message {
   @@index([senderId, createdAt])
 }
 
+model AuthRateLimitBucket {
+  keyHash         String   @id
+  windowStartedAt DateTime
+  requestCount    Int
+}
+
 model PasswordResetToken {
   id        String   @id @onCreate(cuid(2))
   userId    String
@@ -115,14 +124,10 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime @default(now())
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, createdAt])
   @@index([expiresAt])
-}
-
-model AuthRateLimitBucket {
-  keyHash         String   @id
-  windowStartedAt DateTime
-  requestCount    Int
 }
 
 model PostBookmark {
@@ -172,15 +177,18 @@ model PostCommentLike {
 model Story {
   id        String   @id @onCreate(cuid(2))
   userId    String
-  mediaUrl  String
+  mediaUrl  String?
+  postId    String?
   caption   String?
   createdAt DateTime @default(now())
   expiresAt DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
   views StoryView[]
 
   @@index([userId, expiresAt])
+  @@index([postId])
 }
 
 model StoryView {
