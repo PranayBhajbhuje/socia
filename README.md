@@ -4,21 +4,40 @@ Socia is a mobile-first social networking app built with Next.js 16 (App Router)
 
 ## Run locally
 
-Prerequisites: Node.js 20.9.0 or newer and npm.
+These steps let a reviewer run the project from a fresh clone. Prerequisites: Git, Node.js 20.9.0 or newer, and npm.
 
-From the repository root, run these commands in PowerShell:
+1. Clone the public repository and enter its folder:
 
-```powershell
-npm ci
-Copy-Item .env.example .env
-npx prisma db init
-npm run seed
-npm run dev
-```
+   ```powershell
+   git clone https://github.com/PranayBhajbhuje/socia.git
+   cd socia
+   ```
 
-Open the local URL printed by Next.js (usually `http://localhost:3000`). Seeding is optional; it adds six demo users, twelve posts, and their likes. The seed script does not clear unrelated data. To start without demo data, omit `npm run seed`.
+2. Install the locked dependencies:
 
-The local SQLite file is `dev.db`, selected by `DATABASE_URL` in `.env`. Keep `.env` and local database files private. Password-reset emails require `RESEND_API_KEY`, `EMAIL_FROM`, and `APP_URL`; without Resend, the app provides a short-lived reset link only in local development. Production must use an HTTPS `APP_URL` and a strong `AUTH_SECRET` of at least 32 characters.
+   ```powershell
+   npm ci
+   ```
+
+3. Create local environment configuration and initialize the SQLite database from the Prisma contract:
+
+   ```powershell
+   Copy-Item .env.example .env
+   npx prisma db init
+   ```
+
+   On macOS/Linux, use `cp .env.example .env` instead of `Copy-Item`.
+
+4. (Optional) Add demo data, then start the development server:
+
+   ```powershell
+   npm run seed
+   npm run dev
+   ```
+
+5. Open the URL printed in the terminal, usually `http://localhost:3000`. Without seed data, create an account from the signup page. The demo seed includes six users, twelve posts, and likes. A demo account is `rohan.deshmukh@socia.app` with password `SociaPass123!`; this shared password is only for local demo data and must never be used for a real account.
+
+The database file is `dev.db`, selected by `DATABASE_URL` in `.env`. Keep `.env` and local database files private. Password-reset emails require `RESEND_API_KEY`, `EMAIL_FROM`, and `APP_URL`; without Resend, the app provides a short-lived reset link only in local development. Production must use an HTTPS `APP_URL` and a strong `AUTH_SECRET` of at least 32 characters. Do not configure production credentials or deploy this local SQLite setup for the review.
 
 ## Data model
 
@@ -26,11 +45,23 @@ The Prisma contract is [`src/prisma/contract.prisma`](./src/prisma/contract.pris
 
 ## Checks
 
+Run these from the repository root:
+
 ```powershell
 npm test
 npm run lint
 npm run build
 ```
+
+For a quick reviewer cross-check after opening the app:
+
+1. Sign up for a fresh local account, sign out, then sign back in.
+2. Create a text post and confirm it appears in the feed.
+3. Like and unlike a post; reload the page and confirm the final like state is unchanged.
+4. Add a comment or reply, then verify it appears on the post.
+5. Stop and restart the development server; confirm the account, post, and like remain in the local database.
+
+These are manual review steps, not a claim that every possible flow or deployment environment has been independently verified.
 
 ## Assignment status and limitations
 
