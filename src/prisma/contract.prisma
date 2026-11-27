@@ -1,0 +1,239 @@
+// use prisma-8
+
+model User {
+  id           String   @id @onCreate(cuid(2))
+  fullName     String
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  bio          String?
+  avatarUrl    String?
+  websiteUrl   String?
+  sessionVersion Int    @default(0)
+  theme          String @default("light")
+  language       String @default("en")
+  createdAt    DateTime @default(now())
+
+  posts Post[]
+  likes PostLike[]
+  following Follow[] @relation("Following")
+  followers Follow[] @relation("Followers")
+  bookmarks PostBookmark[]
+  comments PostComment[]
+  commentLikes PostCommentLike[]
+  stories Story[]
+  storyViews StoryView[]
+  notifications Notification[] @relation("NotificationRecipient")
+  actedNotifications Notification[] @relation("NotificationActor")
+  videoViews VideoView[]
+  messageReactions MessageReaction[]
+
+  @@index([createdAt])
+}
+
+model Post {
+  id         String   @id @onCreate(cuid(2))
+  authorId   String
+  type       String   // "text" | "image" | "video"
+  content    String?
+  mediaUrl   String?
+  musicTitle String?
+  createdAt  DateTime @default(now())
+
+  author User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes  PostLike[]
+  bookmarks PostBookmark[]
+  comments PostComment[]
+  videoViews VideoView[]
+
+  @@index([authorId, createdAt])
+  @@index([createdAt])
+}
+
+model PostLike {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model Follow {
+  id          String   @id @onCreate(cuid(2))
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Conversation {
+  id        String   @id @onCreate(cuid(2))
+  userOneId String
+  userTwoId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  messages Message[]
+
+  @@unique([userOneId, userTwoId])
+  @@index([userOneId, updatedAt])
+  @@index([userTwoId, updatedAt])
+}
+
+model Message {
+  id             String   @id @onCreate(cuid(2))
+  conversationId String
+  senderId       String
+  body           String
+  createdAt      DateTime @default(now())
+  readAt         DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  reactions MessageReaction[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId, createdAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model AuthRateLimitBucket {
+  keyHash         String   @id
+  windowStartedAt DateTime
+  requestCount    Int
+}
+
+model PostBookmark {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId, createdAt])
+}
+
+model PostComment {
+  id        String   @id @onCreate(cuid(2))
+  postId    String
+  authorId  String
+  parentId  String?
+  body      String
+  createdAt DateTime @default(now())
+
+  post    Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  PostComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies PostComment[] @relation("CommentReplies")
+  likes   PostCommentLike[]
+
+  @@index([postId, createdAt])
+  @@index([parentId, createdAt])
+}
+
+model PostCommentLike {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId])
+}
+
+model Story {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  mediaUrl  String
+  caption   String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views StoryView[]
+
+  @@index([userId, expiresAt])
+}
+
+model StoryView {
+  id        String   @id @onCreate(cuid(2))
+  storyId   String
+  userId    String
+  viewedAt  DateTime @default(now())
+
+  story Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  actorId   String
+  type      String
+  entityId  String?
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  recipient User @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor     User @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model VideoView {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model MessageReaction {
+  id        String   @id @onCreate(cuid(2))
+  userId    String
+  messageId String
+  reaction  String   @default("heart")
+  createdAt DateTime @default(now())
+
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId])
+}
+
