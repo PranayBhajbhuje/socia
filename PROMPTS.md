@@ -45,6 +45,10 @@ This is a professionally edited, consolidated record of the project prompts reco
 10. **Run the application**  
     Start the Socia application locally and confirm it is reachable.
 
+11. **Review assignment completeness:** Compare the technical requirements and submission checklist with the finished project. Identify what is complete, what remains, and the next actions needed before submission.
+
+12. **Hosting and repository handoff:** Guide the project owner through publishing the repository and assess whether the current SQLite setup and local media storage are appropriate for Vercel. Do not recommend deployment until persistent database and storage requirements are addressed.
+
 ## Completeness note
 
 The Gemini entries are consolidated from the saved export in the workspace; the original export is excluded because it contains private account metadata. Copilot entries consolidate the project requests available in the retained conversation. This document cannot account for prompts from other AI tools or unavailable sessions unless their owners provide those exports.
